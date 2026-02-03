@@ -62,7 +62,7 @@ public class VNombreJugador extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
-                vista.mostrarEsperandoJugador();
+                vista.mostrarLobby();
                 try{
                     controlador.iniciarJugador(textNombreUser.getText());
                 }catch (RemoteException ex){

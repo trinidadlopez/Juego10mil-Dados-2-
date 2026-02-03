@@ -1,16 +1,32 @@
 package Vista;
 
 import Controlador.Controlador;
+import Vista.mapeo.MapeoCaraDados;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public class VJuego extends JFrame {
     private VistaGrafica vista;
     private Controlador controlador;
-    private JPanel panelMesa;
-    private Image fondo;
+    private MapeoCaraDados mapeo;
+    private JLabel fondo;
+    private JLabel cubilete;
+    private JButton btnLanzar;
+    private JButton btnApartar;
+    private JButton btnPlantarse;
+    private JLabel dado1;
+    private JLabel dado2;
+    private JLabel dado3;
+    private JLabel dado4;
+    private JLabel dado5;
+    private JLabel lblUniversal;
+    private JPanel panelDados;
+    private JPanel panelDadosApartados;
 
     public VJuego(VistaGrafica vista, Controlador controlador) {
         inicializar_comp(vista, controlador);
@@ -19,26 +35,238 @@ public class VJuego extends JFrame {
     private void inicializar_comp(VistaGrafica vista, Controlador controlador) {
         this.vista = vista;
         this.controlador = controlador;
+        this.mapeo = new MapeoCaraDados();
 
-        setTitle("Juego 10mil - En curso");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 650);
+        setSize(1200, 700); //le da tamaño a la ventana y la centra
         setLocationRelativeTo(null);
 
-        ImageIcon icon = new ImageIcon("src/ImagenesJuego/fondoJuego.jpg");
-        fondo = icon.getImage();
+        // fondo
+        ImageIcon fondoJ = new ImageIcon("src/ImagenesJuego/fondo.png");
+        this.fondo = new JLabel(fondoJ);
+        fondo.setLayout(new BorderLayout());
+        setContentPane(fondo);
 
-        panelMesa = new JPanel() {
+        // cubilete escalado
+        ImageIcon iconoOriginal = new ImageIcon("src/ImagenesJuego/cubilete.png");
+        Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(
+                150, 200, Image.SCALE_SMOOTH
+        );
+        ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
+        cubilete = new JLabel(iconoEscalado);
+        cubilete.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // botones
+        btnLanzar = new JButton("Lanzar dados");
+        btnApartar = new JButton("Apartar dados");
+        btnPlantarse = new JButton("Plantarse");
+
+        //PANEL INFERIOR DEL FONDO
+        JPanel panelInferiorSouth = new JPanel(new BorderLayout());
+        panelInferiorSouth.setOpaque(false);
+        panelInferiorSouth.add(cubilete, BorderLayout.NORTH);
+
+        panelInferiorSouth.add(btnLanzar, BorderLayout.CENTER);
+        panelInferiorSouth.add(btnApartar, BorderLayout.WEST);
+        panelInferiorSouth.add(btnPlantarse, BorderLayout.EAST);
+
+        fondo.add(panelInferiorSouth, BorderLayout.SOUTH);
+        btnApartar.setEnabled(false);
+        btnPlantarse.setEnabled(false);
+        btnLanzar.setEnabled(false);
+
+        //PARA DARLE MAS PROTAGONISMO A LOS BOTONES
+        btnLanzar.setPreferredSize(new Dimension(160, 45));
+        btnApartar.setPreferredSize(new Dimension(160, 45));
+        btnPlantarse.setPreferredSize(new Dimension(160, 45));
+
+        //PANEL DADOS APARTADOS
+        panelDadosApartados = new JPanel();
+        panelDadosApartados.setLayout(new BoxLayout(panelDadosApartados, BoxLayout.Y_AXIS)); //esto es para que pueda aparecer en vertical
+        panelDadosApartados.setOpaque(false);
+
+        fondo.add(panelDadosApartados, BorderLayout.EAST);
+        panelDadosApartados.setVisible(false);
+
+        // LABEL UNIVERSAL - por ahora solo tiene el msj del turno actual
+        lblUniversal = new JLabel();
+        fondo.add(lblUniversal, BorderLayout.NORTH);
+        lblUniversal.setVisible(false);
+
+        // PANEL DADOS
+        panelDados = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        panelDados.setOpaque(false);
+        //lanzamiento (labels de dados vacíos)
+        dado1 = new JLabel();
+        dado2 = new JLabel();
+        dado3 = new JLabel();
+        dado4 = new JLabel();
+        dado5 = new JLabel();
+
+        panelDados.add(dado1);
+        panelDados.add(dado2);
+        panelDados.add(dado3);
+        panelDados.add(dado4);
+        panelDados.add(dado5);
+
+        fondo.add(panelDados, BorderLayout.CENTER);
+        panelDados.setVisible(false);
+
+        btnPlantarse.addActionListener(new ActionListener() {
             @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    controlador.calcularPuntajeTabla();
+                    //controlador.actualizar_turno();
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
+                //btnPlantarse.setEnabled(false);
+                //btnLanzar.setEnabled(false);
+                //btnApartar.setEnabled(false);
             }
-        };
+        });
 
-        panelMesa.setLayout(null);
-        setContentPane(panelMesa);
+        // acción del botón lanzar
+        btnLanzar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    controlador.lanzar_dados();
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
+                btnLanzar.setEnabled(false);
+                //btnApartar.setEnabled(true);
+                //btnPlantarse.setEnabled(true);
+            }
+        });
+
+        btnApartar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    controlador.apartarDados();
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
+                btnApartar.setEnabled(false);
+                //btnLanzar.setEnabled(true);
+                btnPlantarse.setEnabled(false);
+            }
+        });
+
+
     }
 
+    public void mostrarDadosLanzados(ArrayList<Integer> resultados, int idJugador) {
+        int ancho;
+        int alto;
+
+        JLabel[] labels = {dado1, dado2, dado3, dado4, dado5};
+
+        //limpio los labels, que quiza nates tenian otra imagen
+        for (JLabel lbl : labels) {
+            lbl.setIcon(null);
+        }
+
+        fondo.remove(panelDados);
+
+        //SI SOY YO SE MUESTREN LOS DADOS GRANDES EN EL CENTRO Y SI ES OTRO JUGADOR SE MUESTRE CHIQUITOS EN LA PARTE SUPERIOR
+        if(idJugador == controlador.getNroJugador()){
+            ancho = 100;
+            alto = 100;
+            fondo.add(panelDados, BorderLayout.CENTER);
+        }else{
+
+            ancho = 50;
+            alto = 50;
+            fondo.add(panelDados, BorderLayout.NORTH);
+        }
+
+        //le pongo los nuevos dados
+        for (int i =0 ; i < resultados.size() && i < labels.length; i++) {
+            int valor = resultados.get(i);
+            ImageIcon iconoOriginal = new ImageIcon(
+                    getClass().getResource("/ImagenesJuego/cara" + valor + ".png" )
+            );
+            Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(
+                    ancho, alto, Image.SCALE_SMOOTH
+            );
+            labels[i].setIcon(new ImageIcon(imagenEscalada));
+        }
+
+        fondo.revalidate();
+        fondo.repaint();
+        panelDados.setVisible(true);
+
+    }
+
+    public void mostrarJugadorActual(String nombre){
+        lblUniversal.setVisible(true);
+        lblUniversal.setText("Es el turno del jugador: " + nombre);
+        System.out.println("Vjuego: mostrarJugadorActual");
+    }
+
+    public void dados_apartados(ArrayList<Integer> dadosApartados){
+        int ancho = 50;
+        int alto = 50;
+
+        lblUniversal.setText("Dados apartados: ");
+        lblUniversal.setVisible(true);
+
+        panelDadosApartados.removeAll();
+
+        //creo tantos labels como dados
+        for (int v : dadosApartados){
+            JLabel lbldado = new JLabel();
+            ImageIcon iconoOriginal = new ImageIcon(
+                    getClass().getResource("/ImagenesJuego/cara" + v + ".png" )
+            );
+            Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(
+                    ancho, alto, Image.SCALE_SMOOTH
+            );
+            lbldado.setIcon(new ImageIcon(imagenEscalada));
+
+            panelDadosApartados.add(lbldado);
+        }
+
+        panelDadosApartados.setVisible(true);
+        panelDadosApartados.revalidate();
+        panelDadosApartados.repaint();
+    }
+
+    //BOTONES
+    public void deshabilitarBotonesTodos(){
+        btnLanzar.setEnabled(false);
+        btnPlantarse.setEnabled(false);
+        btnApartar.setEnabled(false);
+    }
+
+    public void habilitarBotonLanzar(){
+        System.out.println("VJuego: Habilita lanzar y deshasbilita plantarse y apartar");
+        btnLanzar.setEnabled(true);
+        //btnPlantarse.setEnabled(false);
+        //btnApartar.setEnabled(false);
+    }
+
+
+    public void habilitarBotonesPlantarseYApartar() {
+        System.out.println("VJuego: Habilita botones plantarse y apartar y deshabilita lanzar");
+        btnPlantarse.setEnabled(true);
+        btnApartar.setEnabled(true);
+        btnLanzar.setEnabled(false);
+        lblUniversal.setVisible(false);
+    }
+
+    public void msjEscalera(){
+        lblUniversal.setText("¡Escalera! +500 puntos. Turno finalizado");
+        lblUniversal.setVisible(true);
+    }
+
+    public void msjSinPuntos(){
+        lblUniversal.setText("¡Dados sin puntos! Perdiste la ronda.");
+        lblUniversal.setVisible(true);
+    }
 
 }

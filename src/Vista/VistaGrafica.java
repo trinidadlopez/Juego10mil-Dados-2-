@@ -3,14 +3,18 @@ package Vista;
 import Controlador.Controlador;
 import Modelo.Jugador;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class VistaGrafica {
     private Controlador controlador;
     private VMenuPrincipal menuPrincipal;
     private VNombreJugador nombreJugador;
-    private VEsperandoJugador esperandoJ;
-    public VJuego ventanaJuego;
+    private VLobby lobby;
+    private VJuego ventanaJuego;
+    private VPuntaje tabla_puntaje;
+    private boolean juegoMostrado = false;
+
 
     public VistaGrafica(Controlador controlador){
         this.controlador  = controlador;
@@ -20,9 +24,10 @@ public class VistaGrafica {
     public void iniciar(){
         menuPrincipal = new VMenuPrincipal(this, controlador);
         nombreJugador = new VNombreJugador(this, controlador);
-        esperandoJ = new VEsperandoJugador(this, controlador);
+        lobby = new VLobby(this, controlador);
         ventanaJuego= new VJuego(this, controlador);
         mostrarMenuPrincipal();
+        tabla_puntaje = new VPuntaje();
     }
     public void mostrarMenuPrincipal(){
         menuPrincipal.setVisible(true);
@@ -32,23 +37,74 @@ public class VistaGrafica {
         nombreJugador.setVisible(true);
     }
 
-    public void mostrarEsperandoJugador(){
-        esperandoJ.setVisible(true);
+
+    public void mostrarLobby(){
+        lobby.setVisible(true);
     }
 
-    public void agregarJugadorALaEspera(ArrayList<Jugador> jugadores){
-        esperandoJ.agregarJ(jugadores);
+    public void ocultarLobby(){
+        lobby.setVisible(false);
     }
 
-    public void sacarVEspera(){
-        esperandoJ.setVisible(false);
+    public void mostrarJuego() throws RemoteException {
+        if (!juegoMostrado) { //para no tener problemas en que se me "reabra" la ventana muchas vecez y me permita minimizarla sin problemas
+            ventanaJuego.setTitle("Juego 10mil - En curso. Vista de " + controlador.nombreJugadorVentana());
+            ventanaJuego.setVisible(true);
+            juegoMostrado = true;
+        }
     }
 
-    public void habilitarIniciar(boolean habilitar){
-        esperandoJ.habilitarBotonIniciar(habilitar);
+    public void actualizarLobbyJugadores(ArrayList<Jugador> jugadores) {
+        lobby.actualizarJugadores(jugadores);
     }
 
-    public void mostrarJuego(){
-        ventanaJuego.setVisible(true);
+    public void iniciarTimerLobby() {
+        lobby.iniciarTimer(); // SOLO el que arranca
     }
+
+    public void mostrarDados(ArrayList<Integer> dadosLanzados, int idJugador){
+        ventanaJuego.mostrarDadosLanzados(dadosLanzados, idJugador);
+    }
+
+
+    public void agregarPuntajeRondaTabla(int puntaje, String nombre, int puntajeTotal, int ronda){
+        tabla_puntaje.agregarPuntaje(puntaje, nombre, puntajeTotal, ronda);
+        tabla_puntaje.setVisible(true);
+    }
+
+    /*public void mostrarHabilitarBotonesYMostrarMsj(){
+        ventanaJuego.habilitarBotonesYMostrarMsj();
+    }*/
+
+
+    public void mostrarTurnoJugadorAdecuado(String nombre){
+        System.out.println("VISTA GRAFICA: mostrar turno adecuado ()");
+        ventanaJuego.mostrarJugadorActual(nombre);
+    }
+
+    public void mostrarDadosApartados(ArrayList<Integer> d){
+        ventanaJuego.dados_apartados(d);
+    }
+
+    public void mostrarMsjEscalera(){
+        ventanaJuego.msjEscalera();
+    }
+
+    //hbailitar/deshabilitar botones
+    public void habilitarBotonesLanzarSolo(){
+        ventanaJuego.habilitarBotonLanzar();
+    }
+
+    public void deshabilitarBotones(){
+        ventanaJuego.deshabilitarBotonesTodos();
+    }
+
+    public void habilitarBotonesPlantarseOApartar(){
+        ventanaJuego.habilitarBotonesPlantarseYApartar();
+    }
+
+    public void mostrarMsjPuntosPerdidos(){
+        ventanaJuego.msjSinPuntos();
+    }
+
 }
