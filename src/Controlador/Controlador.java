@@ -5,6 +5,7 @@ import Vista.VistaGrafica;
 import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
 import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
 
+import javax.swing.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
@@ -40,45 +41,65 @@ public class Controlador implements IControladorRemoto {
                     break;
                 case COMENZAR_JUEGO:
                     vista.ocultarLobby();
-                    
                     vista.mostrarJuego();
                     vista.deshabilitarBotones(); //no deberia haber ningun boton habilitado pero con esto me aseguro
                     break;
                 case DADOS_LANZADOS: //muestra los dados luego de presionar el btnLanzar
+                    //si esto no aparece siempre el problema esta e
+                    System.out.println("EVENTO DADOS_LANZADOS");
+                    System.out.println("Jugador actual: " + juego.getJugadorActual().getNroJugador());
+                    System.out.println("Dados parciales: " + juego.getJugadorActual().getDadosParciales().size());
                     ArrayList<Integer> valores = new ArrayList<>();
                     for(Dado d: juego.getJugadorActual().getDadosParciales()){
                         valores.add(d.getValorCaraSuperior());
                     }
                     int idJugador = juego.getJugadorActual().getNroJugador();
-                    vista.mostrarDados(valores, idJugador);
+                    SwingUtilities.invokeLater(()->{
+                        try{
+                            vista.mostrarDados(valores, idJugador);
+                        } catch (RuntimeException e) {
+                            throw new RuntimeException(e);
+
+                        }
+                    });
                     break;
                 case DADOS_CON_PUNTOS:
+                    System.out.println("Entro a DADOS_CON_PUNTOS");
                     if(juego.getJugadorActual().getNroJugador() == nroJugador){
-                        System.out.println("Controlador: DADOS_CON_PUNTOS: habilita los botones PLANTARSE y APARTAR");
                         vista.habilitarBotonesPlantarseOApartar();
                     }
                     break;
                 case DADOS_SIN_PUNTOS:
-                    System.out.println("Controlador:DADOS SIN PUNTOS: deshabilita todos los botones");
-                    vista.deshabilitarBotones();
-                    //vista.mostrarMensajeDeDadosSinPuntos();
-                    //vista.actualizarTurno();
+                    System.out.println("Entro a DADOS_SIN_PUNTOS");
+                    if(juego.getJugadorActual().getNroJugador() == nroJugador){
+                        System.out.println("case DADOS_SIN_PUNTOS >> deshabilitar botones");
+                        vista.deshabilitarBotones();
+                    }
+                    System.out.println("case DADOS_SIN_PUNTOS >> mostrar mensaje dados sin puntos");
+                    vista.mostrarMensajeDeDadosSinPuntos(juego.getJugadorActual().getNombreJugador());
                     break;
                 case PUNTAJE_ACTUALIZADO:
+                    System.out.println("Entro a PUNTAJE_ACTUALIZADO");
                     vista.agregarPuntajeRondaTabla(juego.getJugadorActual().getPuntajeParcial(), juego.getJugadorActual().getNombreJugador(), juego.getJugadorActual().getPuntajeTotal(), juego.getNroRonda());
+                    //vista.limpiarDadosMesa();
                     break;
                 case ACTUALIZACION_TURNO:
-                    System.out.println("Controlador:ACTUALIZACION TURNO: ...");
+                    System.out.println("Entro a ACTUALIZAR TURNO");
+                    System.out.println("ACTUALIZACION_TURNO >> mostrar turno jugador");
+                    vista.limpiarDadosMesa();
                     vista.mostrarTurnoJugadorAdecuado(juego.nombreJugador());
+                    System.out.println("ACTUALIZACION TURNO: limpiar mesa");
                     if (juego.getJugadorActual().getNroJugador() == nroJugador) {
-                        System.out.println("Controlador:ACTUALIZACION TURNO: habilitar boton lanzar");
+                        System.out.println("ACTUALIZACION_TURNO >> vista habilitar boton lanzar");
                         vista.habilitarBotonesLanzarSolo();
                     } else {
-                        System.out.println("Controlador:ACXTUALIZACION TURNO: deshabilitar todos los botones");
+                        System.out.println("ACTUALIZACION_TURNO >> deshabilitar todos los botones" +
+                                "");
                         vista.deshabilitarBotones();
                     }
                     break;
                 case ACTUALIZAR_DADOS_LANZADOS:
+                    System.out.println("Entro a ACTUALIZAR DADOS LANZADOS");
                     ArrayList<Integer> v = new ArrayList<>(); //v = valores
                     for (Dado d : juego.getJugadorActual().getDadosParciales()) {
                         v.add(d.getValorCaraSuperior());
@@ -86,19 +107,22 @@ public class Controlador implements IControladorRemoto {
                     vista.mostrarDados(v, juego.getJugadorActual().getNroJugador());
                     break;
                 case DADOS_APARTADOS:
+                    System.out.println("Entro a DADOS_APARTADOS");
                     ArrayList<Integer> dadosA = new ArrayList<>();
                     for (Dado d : juego.getJugadorActual().getDadosApartados()) {
                         dadosA.add(d.getValorCaraSuperior());
                     }
                     vista.mostrarDadosApartados(dadosA);
+                    if(juego.getJugadorActual().getNroJugador() == nroJugador){
+                        vista.habilitarBotonesLanzarSolo();
+                    }else{
+                        vista.deshabilitarBotones();
+                    }
                     break;
                 case ESCALERA_OBTENIDA:
-                    vista.mostrarMsjEscalera();
-                    System.out.println("Controlador:ESCALERA: deshabilitar todos los botones");
+                    System.out.println("Entro a ESCALERA_OBTENIDA");
+                    vista.mostrarMsjEscalera(juego.getJugadorActual().getNombreJugador());
                     vista.deshabilitarBotones();
-                    break;
-                case RONDA_PERDIDA:
-                    vista.mostrarMsjPuntosPerdidos();
                     break;
             }
         }
@@ -131,7 +155,6 @@ public class Controlador implements IControladorRemoto {
     }
 
     public void apartarDados() throws RemoteException {
-        System.out.println("CONTROLADOR llama a juego.apartar_dados()");
         juego.apartar_dados();
     }
 

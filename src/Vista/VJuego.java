@@ -40,6 +40,8 @@ public class VJuego extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1200, 700); //le da tamaño a la ventana y la centra
         setLocationRelativeTo(null);
+        setResizable(true);
+        
 
         // fondo
         ImageIcon fondoJ = new ImageIcon("src/ImagenesJuego/fondo.png");
@@ -117,7 +119,7 @@ public class VJuego extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     controlador.calcularPuntajeTabla();
-                    //controlador.actualizar_turno();
+                    controlador.actualizar_turno();
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -136,7 +138,7 @@ public class VJuego extends JFrame {
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
                 }
-                btnLanzar.setEnabled(false);
+                //btnLanzar.setEnabled(false);
                 //btnApartar.setEnabled(true);
                 //btnPlantarse.setEnabled(true);
             }
@@ -150,9 +152,9 @@ public class VJuego extends JFrame {
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
                 }
-                btnApartar.setEnabled(false);
+                //btnApartar.setEnabled(false);
                 //btnLanzar.setEnabled(true);
-                btnPlantarse.setEnabled(false);
+                //btnPlantarse.setEnabled(false);
             }
         });
 
@@ -160,8 +162,19 @@ public class VJuego extends JFrame {
     }
 
     public void mostrarDadosLanzados(ArrayList<Integer> resultados, int idJugador) {
+        //si no llegan todos es porque hay error en el modelo/reglas, el error está antes
+        System.out.println(">>> INICIO mostrarDadosLanzados");
+        System.out.println("VISTA: mostrarDados()");
+        System.out.println("cantidad dados recibidos: " + resultados.size());
+
         int ancho;
         int alto;
+
+        System.out.println("ANTES removeAll - componentes en panelDados: "
+                + panelDados.getComponentCount());
+        panelDados.removeAll();
+        System.out.println("DESPUÉS removeAll - componentes en panelDados: "
+                + panelDados.getComponentCount());
 
         JLabel[] labels = {dado1, dado2, dado3, dado4, dado5};
 
@@ -174,11 +187,12 @@ public class VJuego extends JFrame {
 
         //SI SOY YO SE MUESTREN LOS DADOS GRANDES EN EL CENTRO Y SI ES OTRO JUGADOR SE MUESTRE CHIQUITOS EN LA PARTE SUPERIOR
         if(idJugador == controlador.getNroJugador()){
+            System.out.println("MOSTRANDO dados GRANDES en CENTER");
             ancho = 100;
             alto = 100;
             fondo.add(panelDados, BorderLayout.CENTER);
         }else{
-
+            System.out.println("MOSTRANDO dados CHICOS en NORTH");
             ancho = 50;
             alto = 50;
             fondo.add(panelDados, BorderLayout.NORTH);
@@ -187,6 +201,7 @@ public class VJuego extends JFrame {
         //le pongo los nuevos dados
         for (int i =0 ; i < resultados.size() && i < labels.length; i++) {
             int valor = resultados.get(i);
+            System.out.println("Cargando dado " + i + " valor=" + valor);
             ImageIcon iconoOriginal = new ImageIcon(
                     getClass().getResource("/ImagenesJuego/cara" + valor + ".png" )
             );
@@ -194,28 +209,30 @@ public class VJuego extends JFrame {
                     ancho, alto, Image.SCALE_SMOOTH
             );
             labels[i].setIcon(new ImageIcon(imagenEscalada));
+            panelDados.add(labels[i]);
         }
 
         fondo.revalidate();
         fondo.repaint();
         panelDados.setVisible(true);
+        System.out.println("<<< FIN mostrarDadosLanzados");
 
     }
 
     public void mostrarJugadorActual(String nombre){
         lblUniversal.setVisible(true);
         lblUniversal.setText("Es el turno del jugador: " + nombre);
-        System.out.println("Vjuego: mostrarJugadorActual");
     }
 
     public void dados_apartados(ArrayList<Integer> dadosApartados){
         int ancho = 50;
         int alto = 50;
 
+        panelDadosApartados.removeAll();
+
         lblUniversal.setText("Dados apartados: ");
         lblUniversal.setVisible(true);
 
-        panelDadosApartados.removeAll();
 
         //creo tantos labels como dados
         for (int v : dadosApartados){
@@ -244,29 +261,45 @@ public class VJuego extends JFrame {
     }
 
     public void habilitarBotonLanzar(){
-        System.out.println("VJuego: Habilita lanzar y deshasbilita plantarse y apartar");
         btnLanzar.setEnabled(true);
-        //btnPlantarse.setEnabled(false);
-        //btnApartar.setEnabled(false);
+        btnPlantarse.setEnabled(false);
+        btnApartar.setEnabled(false);
     }
 
 
     public void habilitarBotonesPlantarseYApartar() {
-        System.out.println("VJuego: Habilita botones plantarse y apartar y deshabilita lanzar");
         btnPlantarse.setEnabled(true);
         btnApartar.setEnabled(true);
         btnLanzar.setEnabled(false);
         lblUniversal.setVisible(false);
     }
 
-    public void msjEscalera(){
-        lblUniversal.setText("¡Escalera! +500 puntos. Turno finalizado");
+    public void msjEscalera(String nombre){
+        lblUniversal.setText(nombre + "¡Obtuvo escalera! +500 puntos. Turno finalizado");
         lblUniversal.setVisible(true);
     }
 
-    public void msjSinPuntos(){
-        lblUniversal.setText("¡Dados sin puntos! Perdiste la ronda.");
+    public void msjSinPuntos(String nombre){
+        lblUniversal.setText("¡Dados sin puntos! En esta ronda " + nombre + "no suma puntos");
         lblUniversal.setVisible(true);
+    }
+
+    public void limpiar_dados_mesa(){
+        System.out.println("!!! limpiar_dados_mesa EJECUTADO");
+
+        JLabel[] labels = {dado1, dado2, dado3, dado4, dado5};
+
+        for (JLabel lbl : labels) {
+            lbl.setIcon(null);
+        }
+
+        panelDados.removeAll();
+        panelDados.revalidate();
+        panelDados.repaint();
+
+        panelDadosApartados.removeAll();
+        panelDadosApartados.revalidate();
+        panelDadosApartados.repaint();
     }
 
 }

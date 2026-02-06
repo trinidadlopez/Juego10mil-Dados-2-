@@ -133,7 +133,6 @@ public class Reglas {
                     dadosConPuntos.add(d);
                 }
             }
-            return dadosConPuntos;
         }
 
             //chequeo individuales (1 y 5)

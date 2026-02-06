@@ -26,10 +26,6 @@ public class Jugador implements Serializable { //tercer cosa que agregue 17/12, 
         getCubilete().getDados().removeAll(dado);
     }
 
-
-
-
-
     public String getNombreJugador() {
         return nombreJugador;
     }

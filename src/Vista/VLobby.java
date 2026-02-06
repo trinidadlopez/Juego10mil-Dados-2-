@@ -16,9 +16,7 @@ public class VLobby extends JFrame {
     private JPanel panelJugadores;
     private JLabel lblEstado;
     private JPanel panelEstado;
-    private JLabel lblTimer;
     private Timer timer;
-    private int segundosRestantes;
 
 
     public VLobby(VistaGrafica vista, Controlador controlador) {
@@ -52,12 +50,6 @@ public class VLobby extends JFrame {
         panelJugadores.setBorder(new EmptyBorder(10, 10, 10, 10));
         panel.add(panelJugadores, BorderLayout.CENTER);
 
-        //timer
-        lblTimer = new JLabel("");
-        lblTimer.setVisible(false);
-        panel.add(lblTimer, BorderLayout.SOUTH);
-        panelEstado.add(lblTimer);
-
     }
 
     public void actualizarJugadores(ArrayList<Jugador> jugadores) {
@@ -75,9 +67,6 @@ public class VLobby extends JFrame {
         } else {
             lblEstado.setText("Esperando a mas jugadores...\n Jugadores conectados: " + jugadores.size() + "/6.");
         }
-        if (jugadores.size() >= 2) {
-            lblTimer.setVisible(true);
-        }
     }
 
     public void iniciarTimer() { /// timer interno: no se ve por los jugadores.
@@ -88,14 +77,8 @@ public class VLobby extends JFrame {
                 throw new RuntimeException(ex);
             }
         });
+        timer.setRepeats(false);
         timer.start();
     }
 
-    /*public void actualizarTimer(int segundosRestantes) {
-        int min = segundosRestantes / 60;
-        int sec = segundosRestantes % 60;
-
-        lblTimer.setText("La partida comienza en " + String.format("%02d:%02d", min, sec));
-        lblTimer.setVisible(true);
-    }*/
 }

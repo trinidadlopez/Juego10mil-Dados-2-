@@ -37,5 +37,6 @@ public class VPuntaje extends JFrame{
         modeloTabla.addRow(new Object[]{
                 nombre,ronda,puntaje,puntajeT
         });
+        System.out.println("Se agrego puntaje " + puntaje + " del jugador" + nombre);
     }
 }

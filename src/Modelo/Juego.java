@@ -36,8 +36,6 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         jugadores.add(jugador);
         notificarObservadores(JUGADOR_AGREGADO);
         for(Jugador j: jugadores){
-            System.out.println("Jugador " + j.getNombreJugador() + " agregado");
-            System.out.println("cantidad de jugadores: " + jugadores.size());
         }
         if(jugadores.size() == 1){
             jugadorActual = jugador;
@@ -45,17 +43,12 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
             //System.out.println("MODELO: iniciarJugador, actualizacion turno pero no notifica");
 
         }
-
-        System.out.println("El jugador actual es: "+ jugadorActual.getNombreJugador());
-
     }
 
     @Override
     public void comenzarJuego() throws RemoteException{
         notificarObservadores(COMENZAR_JUEGO);
         notificarObservadores(ACTUALIZACION_TURNO);
-        System.out.println("MODELO: comenzarJuego(), actualizar turno");
-
     }
 
     @Override
@@ -63,7 +56,8 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         return jugadores;
     }
 
-    public void lanzar() throws RemoteException { // SIGUE SIN ANDAR
+    public void lanzar() throws RemoteException {
+        System.out.println("Entro en lanzar()");
         Cubilete cubilete = jugadorActual.getCubilete();
         //si está vacío, arrancá con los dados del cubilete
         if (jugadorActual.getDadosParciales() == null || jugadorActual.getDadosParciales().isEmpty()) {
@@ -85,10 +79,9 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         if (reglas.chequeo_escalera(jugadorActual.getDadosParciales())) {
             jugadorActual.setPuntajeParcial(500);
             reglas.sumarPuntaje(500, jugadorActual);
-            notificarObservadores(PUNTAJE_ACTUALIZADO); //agrega puntaje a la tabla de puntajes y la muestra
             notificarObservadores(Eventos.ESCALERA_OBTENIDA); //msj escalera obtenida, muestra y suma los puntos,avanza el turno.
+            notificarObservadores(PUNTAJE_ACTUALIZADO); //agrega puntaje a la tabla de puntajes y la muestra
             actualizar_turno_jugador();
-            System.out.println("MODELO: lanzar(), actualizacion turno pero no notifica");
             return;
         }
         //TIENE DADOS_CON_PUNTOS
@@ -98,16 +91,23 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
             return;
         }
         if(jugadorActual.getDadosApartados().size()>0){
-            notificarObservadores(RONDA_PERDIDA); //msj perdio los puntos y actualizo turno
+            notificarObservadores(DADOS_SIN_PUNTOS); //msj perdio los puntos y actualizo turno
             jugadorActual.setPuntajeParcial(0);
-            jugadorActual.getDadosParciales().clear();
+            notificarObservadores(PUNTAJE_ACTUALIZADO);
+            // limpiar estado antes de pasar turno
             jugadorActual.getDadosApartados().clear();
+            jugadorActual.setDadosParciales(new ArrayList<>(jugadorActual.getCubilete().getDados()));
+
+            actualizar_turno_jugador();
             return;
         }
         notificarObservadores(Eventos.DADOS_SIN_PUNTOS);
-        actualizar_turno_jugador();
-        System.out.println("MODELO: dados sin puntos, actualizacion turno pero no notifica");
+        notificarObservadores(PUNTAJE_ACTUALIZADO); //agrega puntaje a la tabla de puntajes y la muestra{
+        // limpiar estado antes de pasar turno
+        jugadorActual.getDadosApartados().clear();
+        jugadorActual.setDadosParciales(new ArrayList<>(jugadorActual.getCubilete().getDados()));
 
+        actualizar_turno_jugador();
     }
 
 
@@ -134,7 +134,7 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
             jugadorActual.setDadosApartados(d);
         }
 
-        notificarObservadores(Eventos.ACTUALIZAR_DADOS_LANZADOS);
+        //notificarObservadores(Eventos.ACTUALIZAR_DADOS_LANZADOS);
         notificarObservadores(DADOS_APARTADOS);
 
     }
@@ -144,21 +144,25 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
     }
 
     public void actualizar_turno_jugador() throws RemoteException {
+        // limpiar al jugador que termina
+        jugadorActual.getDadosApartados().clear();
+        jugadorActual.getDadosParciales().clear();
+
+
         int i = jugadores.indexOf(jugadorActual);
         i++;
         i=i%jugadores.size();
         jugadorActual=jugadores.get(i);
 
+        jugadorActual.getDadosApartados().clear(); // limpiar apartados
+        jugadorActual.getDadosParciales().clear();
 
         //ACTUALIZAR NUMERO DE RONDA PARA QUE SE ACTUALICE EN LA TABLA
         indiceJugadorActual++;
         if(indiceJugadorActual >= jugadores.size()){
             indiceJugadorActual = 0;
             nroRonda ++; //solo incremento el nro de ronda cuando paso por todos los jugadores.
-        }
-
-        notificarObservadores(ACTUALIZACION_TURNO);
-        System.out.println("MODELO: juego >> actrualizacion turno EVENTO");
+        }notificarObservadores(ACTUALIZACION_TURNO);
     }
 
     public void calcularPuntaje() throws RemoteException{
@@ -190,7 +194,5 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
     public int getJugadorActualNro(){
         return jugadorActual.getNroJugador();
     }
-
-    
 
 }

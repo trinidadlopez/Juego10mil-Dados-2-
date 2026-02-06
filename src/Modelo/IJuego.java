@@ -35,4 +35,5 @@ public interface IJuego extends IObservableRemoto {
     void calcularPuntaje() throws RemoteException;
 
     int getNroRonda() throws RemoteException;
+
 }

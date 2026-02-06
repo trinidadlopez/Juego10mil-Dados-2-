@@ -63,6 +63,7 @@ public class VistaGrafica {
     }
 
     public void mostrarDados(ArrayList<Integer> dadosLanzados, int idJugador){
+        System.out.println("VISTA GRAFICA >> mostrarDados");
         ventanaJuego.mostrarDadosLanzados(dadosLanzados, idJugador);
     }
 
@@ -78,7 +79,6 @@ public class VistaGrafica {
 
 
     public void mostrarTurnoJugadorAdecuado(String nombre){
-        System.out.println("VISTA GRAFICA: mostrar turno adecuado ()");
         ventanaJuego.mostrarJugadorActual(nombre);
     }
 
@@ -86,8 +86,12 @@ public class VistaGrafica {
         ventanaJuego.dados_apartados(d);
     }
 
-    public void mostrarMsjEscalera(){
-        ventanaJuego.msjEscalera();
+    public void mostrarMsjEscalera(String nombre){
+        ventanaJuego.msjEscalera(nombre);
+    }
+
+    public void mostrarMensajeDeDadosSinPuntos(String nombre){
+        ventanaJuego.msjSinPuntos(nombre);
     }
 
     //hbailitar/deshabilitar botones
@@ -103,8 +107,7 @@ public class VistaGrafica {
         ventanaJuego.habilitarBotonesPlantarseYApartar();
     }
 
-    public void mostrarMsjPuntosPerdidos(){
-        ventanaJuego.msjSinPuntos();
+    public void limpiarDadosMesa() {
+        ventanaJuego.limpiar_dados_mesa();
     }
-
 }
