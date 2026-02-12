@@ -28,8 +28,10 @@ public class VNombreJugador extends JFrame {
 
         setResizable(false); //puede no estar. Es para que no se pueda redimensionar
         setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
+        setBounds(100, 100, 350,200);
+        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
-        setBounds(100, 100, 247, 109);
+        setBounds(100, 100, 400, 109);
         panel = new JPanel();
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(panel);
@@ -71,16 +73,6 @@ public class VNombreJugador extends JFrame {
             }
         });
     }
-
-    //estos dos no se si son necesarios
-    public void onClickContinuar(ActionListener listener) { //Permite que otra clase (por ejemplo VistaGrafica) decida qué pasa cuando se hace click en el botón.
-        this.btnComenzar.addActionListener(listener);
-    }
-
-    public String getNombreUsuario() {
-        return this.textNombreUser.getText();
-    }
-
 
 }
 

@@ -1,26 +1,70 @@
 package Controlador;
 
 import Modelo.*;
+import Vista.Mensajes;
+import Vista.VJuego;
 import Vista.VistaGrafica;
 import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
 import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
 
 import javax.swing.*;
+import java.awt.*;
 import java.rmi.RemoteException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class Controlador implements IControladorRemoto {
-    private IJuego juego;
-    private VistaGrafica vista;
+    IJuego juego;
+    VistaGrafica vista;
     int nroJugador;
     ArrayList<Dado> dadosApartados;
     private Jugador jugador;
+    EstadoInterfaz estadoIz;
+    private ArrayDeque<Eventos> cola;
 
     public Controlador() {
+        estadoIz = EstadoInterfaz.NORMAL;
+        cola = new ArrayDeque<>();
     }
 
     public void setVista(VistaGrafica vista){
         this.vista = vista;
+    }
+
+    public void procesar_eventos_pendientes() throws RemoteException {
+        estadoIz = EstadoInterfaz.NORMAL;
+        while(!cola.isEmpty() && estadoIz==EstadoInterfaz.NORMAL){
+            Eventos evento = cola.poll();
+            procesar_evento(evento);
+        }
+    }
+
+    private void procesar_evento(Eventos evento) throws RemoteException {
+        switch (evento){
+            case ACTUALIZACION_TURNO:
+                vista.mensajeUniversal("Turno del jugador/a: " + juego.getJugadorActual().getNombreJugador());
+                if (juego.getJugadorActual().getNroJugador() == nroJugador) {
+                    vista.habilitarBotonesLanzarSolo();
+                } else {
+                    vista.deshabilitarBotones();
+                }
+                break;
+            case PUNTAJE_ACTUALIZADO:
+                vista.mostrarTablaPuntaje();
+                break;
+            case DADOS_LANZADOS:
+                ArrayList<Integer> valores = new ArrayList<>();
+                for (Dado d : juego.getJugadorActual().getDadosParciales()){
+                    valores.add(d.getValorCaraSuperior());
+                }
+                int idJugador = juego.getJugadorActual().getNroJugador();
+                if (idJugador == getNroJugador()) {
+                    vista.mostrarMisDados(valores);
+                } else {
+                    vista.mostrarDadosOtros(valores);
+                }
+                break;
+        }
     }
 
     @Override
@@ -42,72 +86,56 @@ public class Controlador implements IControladorRemoto {
                 case COMENZAR_JUEGO:
                     vista.ocultarLobby();
                     vista.mostrarJuego();
-                    vista.deshabilitarBotones(); //no deberia haber ningun boton habilitado pero con esto me aseguro
+                    vista.mensajeUniversal("Turno del jugador/a: " + juego.getJugadorActual().getNombreJugador());
+                    if(juego.getJugadorActual().getNroJugador()==nroJugador){
+                        vista.habilitarBotonesLanzarSolo();
+                    }else {
+                        vista.deshabilitarBotones();
+                    }
                     break;
-                case DADOS_LANZADOS: //muestra los dados luego de presionar el btnLanzar
-                    //si esto no aparece siempre el problema esta e
-                    System.out.println("EVENTO DADOS_LANZADOS");
-                    System.out.println("Jugador actual: " + juego.getJugadorActual().getNroJugador());
-                    System.out.println("Dados parciales: " + juego.getJugadorActual().getDadosParciales().size());
+                case DADOS_LANZADOS: //chequear si funciona asi o si no lo bloqueo
                     ArrayList<Integer> valores = new ArrayList<>();
-                    for(Dado d: juego.getJugadorActual().getDadosParciales()){
+                    for (Dado d : juego.getJugadorActual().getDadosParciales()){
                         valores.add(d.getValorCaraSuperior());
                     }
                     int idJugador = juego.getJugadorActual().getNroJugador();
-                    SwingUtilities.invokeLater(()->{
-                        try{
-                            vista.mostrarDados(valores, idJugador);
-                        } catch (RuntimeException e) {
-                            throw new RuntimeException(e);
-
-                        }
-                    });
+                    if (idJugador == nroJugador) {
+                        vista.mostrarMisDados(valores);
+                    } else {
+                        vista.mostrarDadosOtros(valores);
+                    }
                     break;
                 case DADOS_CON_PUNTOS:
-                    System.out.println("Entro a DADOS_CON_PUNTOS");
                     if(juego.getJugadorActual().getNroJugador() == nroJugador){
                         vista.habilitarBotonesPlantarseOApartar();
                     }
                     break;
                 case DADOS_SIN_PUNTOS:
-                    System.out.println("Entro a DADOS_SIN_PUNTOS");
-                    if(juego.getJugadorActual().getNroJugador() == nroJugador){
-                        System.out.println("case DADOS_SIN_PUNTOS >> deshabilitar botones");
-                        vista.deshabilitarBotones();
-                    }
-                    System.out.println("case DADOS_SIN_PUNTOS >> mostrar mensaje dados sin puntos");
-                    vista.mostrarMensajeDeDadosSinPuntos(juego.getJugadorActual().getNombreJugador());
+                    manejarDadosSinPuntos();
                     break;
                 case PUNTAJE_ACTUALIZADO:
-                    System.out.println("Entro a PUNTAJE_ACTUALIZADO");
                     vista.agregarPuntajeRondaTabla(juego.getJugadorActual().getPuntajeParcial(), juego.getJugadorActual().getNombreJugador(), juego.getJugadorActual().getPuntajeTotal(), juego.getNroRonda());
-                    //vista.limpiarDadosMesa();
+                    if(estadoIz!=EstadoInterfaz.NORMAL){
+                        cola.add(Eventos.PUNTAJE_ACTUALIZADO);
+                    }else {
+                        vista.mostrarTablaPuntaje();
+                    }
                     break;
                 case ACTUALIZACION_TURNO:
-                    System.out.println("Entro a ACTUALIZAR TURNO");
-                    System.out.println("ACTUALIZACION_TURNO >> mostrar turno jugador");
                     vista.limpiarDadosMesa();
-                    vista.mostrarTurnoJugadorAdecuado(juego.nombreJugador());
-                    System.out.println("ACTUALIZACION TURNO: limpiar mesa");
-                    if (juego.getJugadorActual().getNroJugador() == nroJugador) {
-                        System.out.println("ACTUALIZACION_TURNO >> vista habilitar boton lanzar");
-                        vista.habilitarBotonesLanzarSolo();
-                    } else {
-                        System.out.println("ACTUALIZACION_TURNO >> deshabilitar todos los botones" +
-                                "");
-                        vista.deshabilitarBotones();
+                    if(estadoIz!=EstadoInterfaz.NORMAL){
+                        cola.add(Eventos.ACTUALIZACION_TURNO);
                     }
-                    break;
-                case ACTUALIZAR_DADOS_LANZADOS:
-                    System.out.println("Entro a ACTUALIZAR DADOS LANZADOS");
-                    ArrayList<Integer> v = new ArrayList<>(); //v = valores
-                    for (Dado d : juego.getJugadorActual().getDadosParciales()) {
-                        v.add(d.getValorCaraSuperior());
+                    else{
+                        vista.mensajeUniversal("Turno del jugador/a: " + juego.getJugadorActual().getNombreJugador());
+                        if (juego.getJugadorActual().getNroJugador() == nroJugador) {
+                            vista.habilitarBotonesLanzarSolo();
+                        }else {
+                            vista.deshabilitarBotones();
+                        }
                     }
-                    vista.mostrarDados(v, juego.getJugadorActual().getNroJugador());
                     break;
                 case DADOS_APARTADOS:
-                    System.out.println("Entro a DADOS_APARTADOS");
                     ArrayList<Integer> dadosA = new ArrayList<>();
                     for (Dado d : juego.getJugadorActual().getDadosApartados()) {
                         dadosA.add(d.getValorCaraSuperior());
@@ -115,20 +143,31 @@ public class Controlador implements IControladorRemoto {
                     vista.mostrarDadosApartados(dadosA);
                     if(juego.getJugadorActual().getNroJugador() == nroJugador){
                         vista.habilitarBotonesLanzarSolo();
-                    }else{
+                    }else {
                         vista.deshabilitarBotones();
                     }
                     break;
                 case ESCALERA_OBTENIDA:
-                    System.out.println("Entro a ESCALERA_OBTENIDA");
-                    vista.mostrarMsjEscalera(juego.getJugadorActual().getNombreJugador());
-                    vista.deshabilitarBotones();
+                    manejarEscalera();
                     break;
+                case PLANTADO:
+                    estadoIz = EstadoInterfaz.MOSTRANDO_MSJ;
+                    System.out.println("2)Entró a: case PLANTADO (en el CONTROLADOR)");
+                    vista.mensajeUniversal(juego.getJugadorActual().getNombreJugador() + " se plantó, suma " + juego.getJugadorActual().getPuntajeParcial() + "puntos.");
+                    break;
+                case JUGADOR_GANADOR:
+                    vista.mensajeDeGanador(" ¡JUGADOR GANADOR! " + juego.getJugadorActual().getNombreJugador() + " llegó/pasó los 10.000 puntos. Juego finalizado.");
             }
         }
         catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+
+
+    public void plantarse() throws RemoteException {
+        juego.jugador_plantado();
     }
 
     public void iniciarJugador(String nombre) throws RemoteException{
@@ -139,7 +178,6 @@ public class Controlador implements IControladorRemoto {
         jugador.setNroJugador(juego.siguienteNroJ());
         nroJugador=jugador.getNroJugador();
         juego.iniciar_jugador(jugador);
-
     }
 
     public void comenzarJuego() throws RemoteException{
@@ -150,18 +188,9 @@ public class Controlador implements IControladorRemoto {
         juego.lanzar();
     }
 
-    public void calcularPuntajeTabla() throws RemoteException{
-        juego.calcularPuntaje();
-    }
-
     public void apartarDados() throws RemoteException {
         juego.apartar_dados();
     }
-
-    public void actualizar_turno() throws RemoteException {
-        juego.actualizar_turno_jugador();
-    }
-
 
     public String nombreJugadorVentana() throws RemoteException{
         for(Jugador j: juego.getJugadores()){
@@ -169,10 +198,26 @@ public class Controlador implements IControladorRemoto {
                 return j.getNombreJugador();
             }
         }
-        return "error";
+        return "";
+    }
+
+    public void terminarJuego() throws RemoteException{
+        System.exit(0);
     }
 
     public int getNroJugador() {
         return nroJugador;
+    }
+
+    public void manejarEscalera() throws RemoteException {
+        vista.deshabilitarBotones();
+        vista.mensajeUniversal(juego.getJugadorActual().getNombreJugador() + "Obtuvo escalera! +500 puntos. Turno finalizado");
+        estadoIz = EstadoInterfaz.MOSTRANDO_ESCALERA;
+    }
+
+    public void manejarDadosSinPuntos() throws RemoteException {
+        vista.deshabilitarBotones();
+        vista.mensajeUniversal("¡Dados sin puntos! En esta ronda " + juego.getJugadorActual().getNombreJugador() + " no suma puntos");
+        estadoIz = EstadoInterfaz.MOSTRANDO_DADOS_SIN_PUNTOS;
     }
 }

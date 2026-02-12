@@ -1,21 +1,28 @@
 package Vista;
 
+import Controlador.Controlador;
 import Modelo.Jugador;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.util.ArrayList;
+import java.rmi.RemoteException;
 
 public class VPuntaje extends JFrame{
     DefaultTableModel modeloTabla;
     JTable tabla_puntaje;
     JScrollPane panel;
+    Timer timer;
+    Controlador controlador;
+    VistaGrafica vista;
 
-    public VPuntaje(){
-        inicializar_comp();
+    public VPuntaje(Controlador controlador, VistaGrafica vista){
+        inicializar_comp(controlador, vista);
     }
 
-    public void inicializar_comp(){
+    private void inicializar_comp(Controlador controlador, VistaGrafica vista){
+        this.vista = vista;
+        this.controlador = controlador;
+        iniciarTimer();
         setTitle("Juego10Mil - Puntajes");
         setResizable(false);
         setBounds(100, 100, 500, 500);//posicion x (horizontal)=100, posicion y (vertical)=100, ancho=247 , largo=109
@@ -37,6 +44,23 @@ public class VPuntaje extends JFrame{
         modeloTabla.addRow(new Object[]{
                 nombre,ronda,puntaje,puntajeT
         });
-        System.out.println("Se agrego puntaje " + puntaje + " del jugador" + nombre);
+        setVisible(false);
+    }
+
+    public void mostrarTabla(){
+        setVisible(false);
+        timer.start();
+    }
+
+    public void iniciarTimer() { /// timer interno: no se ve por los jugadores.
+        timer = new Timer(5000, e -> { //2000 = 2 segundos
+            try {
+                controlador.procesar_eventos_pendientes();
+                setVisible(false);
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        timer.setRepeats(false);
     }
 }

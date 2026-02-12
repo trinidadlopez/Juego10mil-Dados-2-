@@ -65,17 +65,13 @@ public class Jugador implements Serializable { //tercer cosa que agregue 17/12, 
         dadosApartados.add(d);
     }
 
-
-    public void setPuntajeTotal(int puntajeTotal) {
-        this.puntajeTotal = puntajeTotal;
+    public void setPuntajeTotal() {
+        this.puntajeTotal = this.puntajeTotal + this.puntajeParcial;
     }
 
     public void setPuntajeParcial(int puntajeParcial) {
         this.puntajeParcial = puntajeParcial;
     }
 
-    public void setNombreJugador(String nombreJugador) {
-        this.nombreJugador = nombreJugador;
-    }
 }
 

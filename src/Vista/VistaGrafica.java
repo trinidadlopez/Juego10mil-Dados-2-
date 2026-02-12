@@ -13,7 +13,9 @@ public class VistaGrafica {
     private VLobby lobby;
     private VJuego ventanaJuego;
     private VPuntaje tabla_puntaje;
+    //private VReglas ventana_reglas;
     private boolean juegoMostrado = false;
+    private Mensajes vtnMensajes;
 
 
     public VistaGrafica(Controlador controlador){
@@ -27,7 +29,9 @@ public class VistaGrafica {
         lobby = new VLobby(this, controlador);
         ventanaJuego= new VJuego(this, controlador);
         mostrarMenuPrincipal();
-        tabla_puntaje = new VPuntaje();
+        tabla_puntaje = new VPuntaje(controlador, this);
+        vtnMensajes = new Mensajes(controlador,this);
+        //ventana_reglas = new VReglas();
     }
     public void mostrarMenuPrincipal(){
         menuPrincipal.setVisible(true);
@@ -62,9 +66,16 @@ public class VistaGrafica {
         lobby.iniciarTimer(); // SOLO el que arranca
     }
 
-    public void mostrarDados(ArrayList<Integer> dadosLanzados, int idJugador){
-        System.out.println("VISTA GRAFICA >> mostrarDados");
-        ventanaJuego.mostrarDadosLanzados(dadosLanzados, idJugador);
+    public void mostrarTablaPuntaje(){
+        tabla_puntaje.mostrarTabla();
+    }
+
+    public void mostrarMisDados(ArrayList<Integer> valores){
+        ventanaJuego.mostrar_mis_dados(valores);
+    }
+
+    public void mostrarDadosOtros(ArrayList<Integer> valores){
+        ventanaJuego.mostrar_dados_otros(valores);
     }
 
 
@@ -73,26 +84,20 @@ public class VistaGrafica {
         tabla_puntaje.setVisible(true);
     }
 
-    /*public void mostrarHabilitarBotonesYMostrarMsj(){
-        ventanaJuego.habilitarBotonesYMostrarMsj();
-    }*/
 
+    public void mensajeUniversal(String cadena){
+        System.out.println("Entró a: mensaje universal con la cadena: (en el vista grafica): "+ cadena);
+        vtnMensajes.msj_universal(cadena);
+    }
 
-    public void mostrarTurnoJugadorAdecuado(String nombre){
-        ventanaJuego.mostrarJugadorActual(nombre);
+    public void mensajeDeGanador(String cadena){
+        vtnMensajes.msj_ganador(cadena);
     }
 
     public void mostrarDadosApartados(ArrayList<Integer> d){
         ventanaJuego.dados_apartados(d);
     }
 
-    public void mostrarMsjEscalera(String nombre){
-        ventanaJuego.msjEscalera(nombre);
-    }
-
-    public void mostrarMensajeDeDadosSinPuntos(String nombre){
-        ventanaJuego.msjSinPuntos(nombre);
-    }
 
     //hbailitar/deshabilitar botones
     public void habilitarBotonesLanzarSolo(){
@@ -110,4 +115,10 @@ public class VistaGrafica {
     public void limpiarDadosMesa() {
         ventanaJuego.limpiar_dados_mesa();
     }
+
+
+    /*public void mostrarReglas(){
+        ventana_reglas.setVisible(true);
+    }*/
+
 }

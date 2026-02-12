@@ -63,39 +63,134 @@ public class Reglas {
     }
 
 
-    public int calcularPuntaje(ArrayList<Dado> dadosApartados){
-        int[] conteo = cantidadDados(dadosApartados);
-        int puntos=0;
+    private int contar_puntos(ArrayList<Integer> dados_con_puntos){
+        int respuesta=0;
 
-        if(conteo[1]==5){
-            return 10000;
-        }
-
-        if(tieneEscalera(conteo)){
-            return 500;
-        }
-
-        for(int i=1; i<=6; i++){
-            if(conteo[i]>=3){
-                if(i==1){
-                    puntos += 1000;
-                }else{
-                    puntos += i*100;
-                }
-                conteo[i]-=3;
+        for(int i=0; i<dados_con_puntos.size();i++){
+            switch(i){
+                case 0://caso de 1
+                    switch (dados_con_puntos.get(0)){
+                        case 0:
+                            respuesta=respuesta;
+                        case 1:
+                            respuesta=respuesta+100;
+                            break;
+                        case 2:
+                            respuesta=respuesta+200;
+                            break;
+                        case 3:
+                            respuesta=respuesta+1000;
+                            break;
+                        case 4:
+                            respuesta=respuesta+1100;
+                            break;
+                        case 5:
+                            respuesta=respuesta+10000;
+                            break;
+                    }
+                    break;
+                case 1: //caso de 2
+                    switch (dados_con_puntos.get(1)){
+                        case 3:
+                            respuesta=respuesta+200;
+                            break;
+                        default:
+                            respuesta=respuesta;
+                            break;
+                    }
+                    break;
+                case 2://caso de 3
+                    switch (dados_con_puntos.get(2)){
+                        case 3:
+                            respuesta=respuesta+300;
+                            break;
+                        default:
+                            respuesta=respuesta;
+                            break;
+                    }
+                    break;
+                case 3://caso de 4
+                    switch (dados_con_puntos.get(3)){
+                        case 3:
+                            respuesta=respuesta+400;
+                            break;
+                        default:
+                            respuesta=respuesta;
+                            break;
+                    }
+                    break;
+                case 4://caso de 5
+                    switch (dados_con_puntos.get(4)){
+                        case 0:
+                            respuesta=respuesta;
+                        case 1:
+                            respuesta=respuesta+50;
+                            break;
+                        case 2:
+                            respuesta=respuesta+100;
+                            break;
+                        case 3:
+                            respuesta=respuesta+500;
+                            break;
+                        case 4:
+                            respuesta=respuesta+550;
+                            break;
+                        case 5:
+                            respuesta=respuesta+600;
+                            break;
+                    }
+                    break;
+                case 5://caso de 6
+                    switch (dados_con_puntos.get(5)){
+                        case 3:
+                            respuesta=respuesta+600;
+                            break;
+                        default:
+                            respuesta=respuesta;
+                            break;
+                    }
+                    break;
             }
-            if(i==5){
-                puntos += conteo[i]*50;
-            }else if(i==1){
-                puntos += conteo[i]*100;
-            }
         }
-        return puntos;
+        return respuesta;
     }
-
-    public void sumarPuntaje(int puntajeParcial, Jugador jugadorActual){
-        int puntajeActual=jugadorActual.getPuntajeTotal();
-        jugadorActual.setPuntajeTotal(puntajeActual+puntajeParcial);
+    public int calcularPuntaje(ArrayList<Dado> dados_con_puntos){
+        ArrayList<Integer> cantidad_de_cada_numero = new ArrayList<>();
+        int cantidad_uno=0;
+        int cantidad_dos=0;
+        int cantidad_tres=0;
+        int cantidad_cuatro=0;
+        int cantidad_cinco=0;
+        int cantidad_seis=0;
+        for(Dado d:dados_con_puntos){
+            switch (d.getValorCaraSuperior()){
+                case 1:
+                    cantidad_uno++;
+                    break;
+                case 2:
+                    cantidad_dos++;
+                    break;
+                case 3:
+                    cantidad_tres++;
+                    break;
+                case 4:
+                    cantidad_cuatro++;
+                    break;
+                case 5:
+                    cantidad_cinco++;
+                    break;
+                case 6:
+                    cantidad_seis++;
+                    break;
+            }
+        }
+        cantidad_de_cada_numero.add(cantidad_uno);
+        cantidad_de_cada_numero.add(cantidad_dos);
+        cantidad_de_cada_numero.add(cantidad_tres);
+        cantidad_de_cada_numero.add(cantidad_cuatro);
+        cantidad_de_cada_numero.add(cantidad_cinco);
+        cantidad_de_cada_numero.add(cantidad_seis);
+        return contar_puntos(cantidad_de_cada_numero);
     }
 
     public Jugador determinar_quien_gano(ArrayList<Jugador> jugadores){
@@ -108,43 +203,78 @@ public class Reglas {
         return ganador;
     }
 
-    public ArrayList<Dado> obtenerDadosConPuntos(ArrayList<Dado> dadosParciales){ //con esto puedo chequear que si el usuario me pide seguir, pueda.
-        ArrayList<Dado> dadosConPuntos = new ArrayList<>();
-        int[] conteo = cantidadDados(dadosParciales);
 
-        //chequeo escalera
-        if(tieneEscalera(conteo)){
-            dadosConPuntos.addAll(dadosParciales);
-            return dadosConPuntos;
-        }
-        //chequeo trio
-        if(tieneTrio(conteo)) {
-            // identifico qué número forma el trío
-            int numeroTrio = -1;
-            for (int i = 1; i <= 6; i++) {
-                if (conteo[i] >= 3) {
-                    numeroTrio = i;
+    public ArrayList<Dado> obtenerDadosConPuntos(ArrayList<Dado> dadosParciales){
+        ArrayList<Dado> dados_a_apartar=new ArrayList<>();
+        int cantidad_dos_agregados=0;
+        int cantidad_tres_agregados=0;
+        int cantidad_cuatro_agregados=0;
+        int cantidad_seis_agregados=0;
+        for(Dado d: dadosParciales){
+            switch (d.getValorCaraSuperior()){
+                case 1:
+                    dados_a_apartar.add(d);
                     break;
-                }
-            }
-
-            for (Dado d : dadosParciales) {
-                if (d.getValorCaraSuperior() == numeroTrio) {
-                    dadosConPuntos.add(d);
-                }
+                case 2:
+                    if(cantidad_caras(2,dadosParciales)==3){
+                        dadosParciales.add(d);
+                    }
+                    else if(cantidad_caras(2,dadosParciales)>3){
+                        if(cantidad_dos_agregados<3){
+                            dados_a_apartar.add(d);
+                            cantidad_dos_agregados++;
+                        }
+                    }
+                    break;
+                case 3:
+                    if(cantidad_caras(3,dadosParciales)==3){
+                        dadosParciales.add(d);
+                    }
+                    else if(cantidad_caras(3,dadosParciales)>3){
+                        if(cantidad_tres_agregados<3){
+                            dados_a_apartar.add(d);
+                            cantidad_tres_agregados++;
+                        }
+                    }
+                    break;
+                case 4:
+                    if(cantidad_caras(4,dadosParciales)==3){
+                        dadosParciales.add(d);
+                    }
+                    else if(cantidad_caras(4,dadosParciales)>3){
+                        if(cantidad_cuatro_agregados<3){
+                            dados_a_apartar.add(d);
+                            cantidad_cuatro_agregados++;
+                        }
+                    }
+                    break;
+                case 5:
+                    dados_a_apartar.add(d);
+                    break;
+                case 6:
+                    if(cantidad_caras(6,dadosParciales)==3){
+                        dadosParciales.add(d);
+                    }
+                    else if(cantidad_caras(6,dadosParciales)>3){
+                        if(cantidad_seis_agregados<3){
+                            dados_a_apartar.add(d);
+                            cantidad_seis_agregados++;
+                        }
+                    }
+                    break;
             }
         }
-
-            //chequeo individuales (1 y 5)
-        for (Dado d : dadosParciales) {
-            if (d.getValorCaraSuperior() == 1 || d.getValorCaraSuperior() == 5) {
-                dadosConPuntos.add(d);
-            }
-        }
-
-        return dadosConPuntos;
+        return dados_a_apartar;
     }
-
+    private int cantidad_caras(int cara, ArrayList<Dado> dados){
+        int cantidad_caras=0;
+        for(Dado d: dados){
+            if(d.getValorCaraSuperior()==cara){
+                cantidad_caras++;
+            }
+        }
+        return cantidad_caras;
+    }
 
     public boolean verificar_si_puede_apartar(ArrayList<Dado> dadosApartados){
         int[] cantidad= cantidadDados(dadosApartados);
@@ -158,7 +288,7 @@ public class Reglas {
         return true;
     }
 
-    public boolean tieneDadosConPuntos(ArrayList<Dado> dadosParciales){ //con esto puedo chequear que si el usuario me pide seguir, pueda.
+    private boolean tieneDadosConPuntos(ArrayList<Dado> dadosParciales){ //con esto puedo chequear que si el usuario me pide seguir, pueda.
         int[] conteo = cantidadDados(dadosParciales);
         if(tieneEscalera(conteo) || tieneTrio(conteo) || conteo[1]>0 || conteo[5]>0){
             return true;
@@ -166,9 +296,19 @@ public class Reglas {
         return false;
     }
 
-    public boolean chequeo_escalera(ArrayList<Dado> dados){
+    private boolean chequeo_escalera(ArrayList<Dado> dados){
         int[] conteo= cantidadDados(dados);
         return tieneEscalera(conteo);
+    }
+
+    public EstadoJugada decime_el_estado(ArrayList<Dado> dadosParciales){
+        if(chequeo_escalera(dadosParciales) == true){
+            return EstadoJugada.TIENE_ESCALERA;
+        } else if (tieneDadosConPuntos(dadosParciales)) {
+            return EstadoJugada.TIENE_DADOS_CON_PUNTOS;
+        } else  {
+            return EstadoJugada.TIENE_DADOS_SIN_PUNTOS;
+        }
     }
 }
 

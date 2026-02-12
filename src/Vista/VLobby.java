@@ -16,7 +16,7 @@ public class VLobby extends JFrame {
     private JPanel panelJugadores;
     private JLabel lblEstado;
     private JPanel panelEstado;
-    private Timer timer;
+    Timer timer;
 
 
     public VLobby(VistaGrafica vista, Controlador controlador) {

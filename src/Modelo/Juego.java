@@ -17,12 +17,14 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
     private int siguiente_nroJ=-1;
     private Reglas reglas;
     private int nroRonda=1;
-    private int indiceJugadorActual = 0;
+    private EstadoJugada estadoJugada;
+    private Cubilete cubilete;
 
 
     public Juego(){
         jugadores = new ArrayList<>();
         reglas = Reglas.getInstance();
+        cubilete = new Cubilete();
     }
 
     @Override
@@ -35,20 +37,15 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
     public void iniciar_jugador(Jugador jugador) throws RemoteException {
         jugadores.add(jugador);
         notificarObservadores(JUGADOR_AGREGADO);
-        for(Jugador j: jugadores){
-        }
         if(jugadores.size() == 1){
             jugadorActual = jugador;
-            //actualizar_turno_jugador();
-            //System.out.println("MODELO: iniciarJugador, actualizacion turno pero no notifica");
-
         }
+        ganador_parcial = jugadores.getFirst();
     }
 
     @Override
     public void comenzarJuego() throws RemoteException{
         notificarObservadores(COMENZAR_JUEGO);
-        notificarObservadores(ACTUALIZACION_TURNO);
     }
 
     @Override
@@ -58,85 +55,74 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
 
     public void lanzar() throws RemoteException {
         System.out.println("Entro en lanzar()");
-        Cubilete cubilete = jugadorActual.getCubilete();
-        //si está vacío, arrancá con los dados del cubilete
-        if (jugadorActual.getDadosParciales() == null || jugadorActual.getDadosParciales().isEmpty()) {
-            jugadorActual.setDadosParciales(new ArrayList<>(cubilete.getDados()));
-        }
-        ArrayList<Dado> resultados = new ArrayList<>();
-        for (Dado dado : jugadorActual.getDadosParciales()) {
-            dado.tirarse();
-            resultados.add(dado);
-        }
+
+        ArrayList<Dado> resultados = cubilete.tirarse();
         jugadorActual.setDadosParciales(resultados);
-        ArrayList<Integer> valores = new ArrayList<>();
-        for(Dado d: resultados){
-            valores.add(d.getValorCaraSuperior());
-        }
+
         notificarObservadores(DADOS_LANZADOS);
+        chequear_estado_tirada();
+        analizar_estado_tirada();
+    }
 
-        //ESCALERA
-        if (reglas.chequeo_escalera(jugadorActual.getDadosParciales())) {
-            jugadorActual.setPuntajeParcial(500);
-            reglas.sumarPuntaje(500, jugadorActual);
-            notificarObservadores(Eventos.ESCALERA_OBTENIDA); //msj escalera obtenida, muestra y suma los puntos,avanza el turno.
-            notificarObservadores(PUNTAJE_ACTUALIZADO); //agrega puntaje a la tabla de puntajes y la muestra
-            actualizar_turno_jugador();
-            return;
-        }
-        //TIENE DADOS_CON_PUNTOS
-        if(reglas.tieneDadosConPuntos(jugadorActual.getDadosParciales())) {
-            jugadorActual.setPuntajeParcial(reglas.calcularPuntaje(jugadorActual.getDadosParciales()));
-            notificarObservadores(Eventos.DADOS_CON_PUNTOS); //habilito los botones de apartar o plantarse
-            return;
-        }
-        if(jugadorActual.getDadosApartados().size()>0){
-            notificarObservadores(DADOS_SIN_PUNTOS); //msj perdio los puntos y actualizo turno
-            jugadorActual.setPuntajeParcial(0);
-            notificarObservadores(PUNTAJE_ACTUALIZADO);
-            // limpiar estado antes de pasar turno
-            jugadorActual.getDadosApartados().clear();
-            jugadorActual.setDadosParciales(new ArrayList<>(jugadorActual.getCubilete().getDados()));
+    private void chequear_estado_tirada(){
+        estadoJugada = reglas.decime_el_estado(jugadorActual.getDadosParciales());
+    }
 
-            actualizar_turno_jugador();
-            return;
+    public void analizar_estado_tirada() throws RemoteException {
+        switch (estadoJugada){
+            case TIENE_ESCALERA:
+                System.out.println("Entró a: TIENE_ESCALERA (en el JUEGO)");
+                jugadorActual.setPuntajeParcial(500);
+                jugadorActual.setPuntajeTotal();
+                notificarObservadores(Eventos.ESCALERA_OBTENIDA);
+                notificarObservadores(PUNTAJE_ACTUALIZADO);
+                actualizar_turno_jugador();
+                break;
+            case TIENE_DADOS_CON_PUNTOS:
+                System.out.println("Entró a: TIENE_DADOS_CON_PUNTOS (en el JUEGO)");
+                notificarObservadores(Eventos.DADOS_CON_PUNTOS); //habilito los botones de apartar o plantarse
+                break;
+            case TIENE_DADOS_SIN_PUNTOS:
+                System.out.println("Entró a: TIENE_DADOS_SIN_PUNTOS (en el JUEGO)");
+                notificarObservadores(DADOS_SIN_PUNTOS); //msj perdio los puntos y actualizo turno
+                jugadorActual.setPuntajeParcial(0);
+                notificarObservadores(PUNTAJE_ACTUALIZADO);
+                actualizar_turno_jugador();
+                break;
         }
-        notificarObservadores(Eventos.DADOS_SIN_PUNTOS);
-        notificarObservadores(PUNTAJE_ACTUALIZADO); //agrega puntaje a la tabla de puntajes y la muestra{
-        // limpiar estado antes de pasar turno
-        jugadorActual.getDadosApartados().clear();
-        jugadorActual.setDadosParciales(new ArrayList<>(jugadorActual.getCubilete().getDados()));
+    }
 
+    public void jugador_plantado() throws RemoteException {
+        System.out.println("1)Entró a: jugador_plantado() (en el JUEGO)");
+        estadoJugada = EstadoJugada.SE_PLANTO;
+        actualizar_parciales();
+        jugadorActual.setPuntajeParcial(reglas.calcularPuntaje(jugadorActual.getDadosParciales()));
+        jugadorActual.setPuntajeTotal();
+        notificarObservadores(PLANTADO);
+        notificarObservadores(PUNTAJE_ACTUALIZADO);
         actualizar_turno_jugador();
     }
 
-
-    public int calcularPuntajeDados() throws RemoteException{
-        int rta = reglas.calcularPuntaje(jugadorActual.getCubilete().getDados());
-        return rta;
-    }
-
-    public int calcularPuntajeTotal() throws RemoteException{
-        int puntajeParcial = calcularPuntajeDados();
-        reglas.sumarPuntaje(puntajeParcial, jugadorActual);
-        int puntajeT = jugadorActual.getPuntajeTotal();
-        return puntajeT;
+    private void actualizar_parciales(){
+        for(Dado d: jugadorActual.getDadosApartados()){
+            jugadorActual.getDadosParciales().add(d);
+        }
     }
 
     public void apartar_dados() throws RemoteException{
-        ArrayList<Dado> dados = jugadorActual.getDadosParciales();
         reglas = Reglas.getInstance();
-
-        ArrayList<Dado> dadosConPuntos = new ArrayList<>(reglas.obtenerDadosConPuntos(jugadorActual.getDadosParciales()));
-
+        ArrayList<Dado> dadosConPuntos = reglas.obtenerDadosConPuntos(jugadorActual.getDadosParciales());
         for(Dado d: dadosConPuntos){
-            dados.remove(d);
+            System.out.println("dados con puntos que se van a apartar: " + d.getValorCaraSuperior());
             jugadorActual.setDadosApartados(d);
         }
+        jugadorActual.getDadosParciales().clear();
+        for(Dado d: jugadorActual.getDadosApartados()){
+            System.out.println("lo que hay en jugadorActual.getDadosApartados: " + d.getValorCaraSuperior());
+        }
 
-        //notificarObservadores(Eventos.ACTUALIZAR_DADOS_LANZADOS);
+        cubilete.actualizar_cubilete(jugadorActual.getDadosApartados());
         notificarObservadores(DADOS_APARTADOS);
-
     }
 
     public Jugador getJugadorActual() {
@@ -144,55 +130,30 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
     }
 
     public void actualizar_turno_jugador() throws RemoteException {
-        // limpiar al jugador que termina
-        jugadorActual.getDadosApartados().clear();
+        cubilete.reestablecer_cubilete();
         jugadorActual.getDadosParciales().clear();
+        jugadorActual.getDadosApartados().clear();
 
+        if(jugadorActual.getPuntajeTotal() >= 10000){ //es 10.000, puse dos mil para probar
+            notificarObservadores(JUGADOR_GANADOR);
+            return;
+        }
 
         int i = jugadores.indexOf(jugadorActual);
         i++;
         i=i%jugadores.size();
         jugadorActual=jugadores.get(i);
-
-        jugadorActual.getDadosApartados().clear(); // limpiar apartados
-        jugadorActual.getDadosParciales().clear();
-
-        //ACTUALIZAR NUMERO DE RONDA PARA QUE SE ACTUALICE EN LA TABLA
-        indiceJugadorActual++;
-        if(indiceJugadorActual >= jugadores.size()){
-            indiceJugadorActual = 0;
-            nroRonda ++; //solo incremento el nro de ronda cuando paso por todos los jugadores.
-        }notificarObservadores(ACTUALIZACION_TURNO);
-    }
-
-    public void calcularPuntaje() throws RemoteException{
-        int rtaPuntaje = calcularPuntajeDados();
-        int puntajeTotal = calcularPuntajeTotal();
-        Jugador j = getJugadorActual();
-
-        j.setPuntajeParcial(rtaPuntaje);
-        j.setPuntajeTotal(puntajeTotal);
-
-        notificarObservadores(PUNTAJE_ACTUALIZADO);
-    }
-
-    public String nombreJugador() throws RemoteException {
-        int nroActual = getJugadorActualNro();
-
-        for(Jugador j: getJugadores()){
-            if(j.getNroJugador() == nroActual){
-                return j.getNombreJugador();
-            }
+        if(jugadores.getFirst() == jugadorActual){
+            nroRonda ++; //solo incremento el nro de ronda cuando paso por de nuevo por el primer jugador.
         }
-        return "error";
+
+        notificarObservadores(ACTUALIZACION_TURNO);
     }
+
 
     public int getNroRonda(){
         return nroRonda;
     }
 
-    public int getJugadorActualNro(){
-        return jugadorActual.getNroJugador();
-    }
 
 }

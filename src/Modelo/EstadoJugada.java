@@ -1,0 +1,8 @@
+package Modelo;
+
+public enum EstadoJugada {
+    TIENE_ESCALERA,
+    TIENE_DADOS_CON_PUNTOS,
+    TIENE_DADOS_SIN_PUNTOS,
+    SE_PLANTO
+}
