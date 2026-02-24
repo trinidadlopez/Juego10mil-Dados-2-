@@ -15,7 +15,8 @@ public class Reglas {
         }
         return instance;
     }
-    public int[] cantidadDados(ArrayList<Dado> dados){ //cuenta la cantidad de dados que hay de cada numero
+
+    private int[] cantidadDados(ArrayList<Dado> dados){ //cuenta la cantidad de dados que hay de cada numero
         int[] conteo = new int[7];
         for(Dado d : dados){
             int valorDado = d.getValorCaraSuperior();
@@ -24,7 +25,7 @@ public class Reglas {
         return conteo;
     }
 
-    public boolean tieneTrio(int[] conteo){ //chequeo si tiene trio de alguno de los numeros
+    private boolean tieneTrio(int[] conteo){ //chequeo si tiene trio de alguno de los numeros
         for(int i=1; i <= 6; i++ ){
             if(conteo[i]>=3){
                 return true;
@@ -33,7 +34,7 @@ public class Reglas {
         return false;
     }
 
-    public boolean tieneEscalera(int[] conteo){ //chequeo si tiene escalera
+    private boolean tieneEscalera(int[] conteo){ //chequeo si tiene escalera
         boolean escalera1a5 = true; //chequeo escalera: 1,2,3,4,5
         for(int i=1; i <= 5; i++){
             if(conteo[i] != 1){
@@ -57,28 +58,27 @@ public class Reglas {
         if(conteo[1]==1 && conteo[3]==1 && conteo[4]==1 && conteo[5]==1 && conteo[6]==1){ //chequeo 3,4,5,6,1
             return true;
         }
-
         return false;
-
     }
 
 
-    private int contar_puntos(ArrayList<Integer> dados_con_puntos){
+    private int contar_puntos(ArrayList<Integer> dados_con_puntos){ //cuento los puntos segun la cantidad de dados que hay de cada numero, lo devuelvo en calcularPuntaje()
         int respuesta=0;
 
         for(int i=0; i<dados_con_puntos.size();i++){
-            switch(i){
-                case 0://caso de 1
-                    switch (dados_con_puntos.get(0)){
-                        case 0:
+            switch(i){ //evaluo indice
+                case 0://indice 0 --> cara valor:1
+                    switch (dados_con_puntos.get(0)){ //evaluo cantidad de dados con ese valor de cara
+                        case 0: //ningun dado con ese numero
                             respuesta=respuesta;
-                        case 1:
+                            break;
+                        case 1: //un solo dado con ese nro
                             respuesta=respuesta+100;
                             break;
-                        case 2:
+                        case 2: //dos dados con ese nro
                             respuesta=respuesta+200;
                             break;
-                        case 3:
+                        case 3: //etc
                             respuesta=respuesta+1000;
                             break;
                         case 4:
@@ -89,40 +89,27 @@ public class Reglas {
                             break;
                     }
                     break;
-                case 1: //caso de 2
-                    switch (dados_con_puntos.get(1)){
-                        case 3:
-                            respuesta=respuesta+200;
-                            break;
-                        default:
-                            respuesta=respuesta;
-                            break;
+                case 1: ////indice 1 --> cara valor:2
+                    if(dados_con_puntos.get(1) >= 3){
+                        respuesta=respuesta+200;
                     }
                     break;
-                case 2://caso de 3
-                    switch (dados_con_puntos.get(2)){
-                        case 3:
-                            respuesta=respuesta+300;
-                            break;
-                        default:
-                            respuesta=respuesta;
-                            break;
+
+                case 2:////indice 2 --> cara valor:3
+                    if(dados_con_puntos.get(2) >= 3){
+                        respuesta=respuesta+300;
                     }
                     break;
-                case 3://caso de 4
-                    switch (dados_con_puntos.get(3)){
-                        case 3:
-                            respuesta=respuesta+400;
-                            break;
-                        default:
-                            respuesta=respuesta;
-                            break;
+                case 3://indice 3 --> cara valor:4
+                    if(dados_con_puntos.get(3)>=3){
+                        respuesta=respuesta+400;
                     }
                     break;
-                case 4://caso de 5
+                case 4://indice 4 --> cara valor:5
                     switch (dados_con_puntos.get(4)){
                         case 0:
                             respuesta=respuesta;
+                            break;
                         case 1:
                             respuesta=respuesta+50;
                             break;
@@ -140,22 +127,18 @@ public class Reglas {
                             break;
                     }
                     break;
-                case 5://caso de 6
-                    switch (dados_con_puntos.get(5)){
-                        case 3:
-                            respuesta=respuesta+600;
-                            break;
-                        default:
-                            respuesta=respuesta;
-                            break;
+                case 5://indice 5--> cara valor:6
+                    if(dados_con_puntos.get(5) >= 3){
+                        respuesta=respuesta+600;
                     }
                     break;
             }
         }
         return respuesta;
     }
-    public int calcularPuntaje(ArrayList<Dado> dados_con_puntos){
-        ArrayList<Integer> cantidad_de_cada_numero = new ArrayList<>();
+
+    public int calcularPuntaje(ArrayList<Dado> dados_con_puntos){ //cuento cuantos dados hay de cada numero y dsp llamo al metodo que cuente los puntos y lo devuelvo
+        ArrayList<Integer> cantidad_de_cada_numero = new ArrayList<>(); //una lista que tiene la cantidad de cada numero
         int cantidad_uno=0;
         int cantidad_dos=0;
         int cantidad_tres=0;
@@ -163,7 +146,7 @@ public class Reglas {
         int cantidad_cinco=0;
         int cantidad_seis=0;
         for(Dado d:dados_con_puntos){
-            switch (d.getValorCaraSuperior()){
+            switch (d.getValorCaraSuperior()){ //evaluo el valor de la cara
                 case 1:
                     cantidad_uno++;
                     break;
@@ -193,18 +176,8 @@ public class Reglas {
         return contar_puntos(cantidad_de_cada_numero);
     }
 
-    public Jugador determinar_quien_gano(ArrayList<Jugador> jugadores){
-        Jugador ganador=jugadores.get(0);
-        for(Jugador j : jugadores){
-            if(j.getPuntajeTotal()>ganador.getPuntajeTotal()){
-                ganador=j;
-            }
-        }
-        return ganador;
-    }
 
-
-    public ArrayList<Dado> obtenerDadosConPuntos(ArrayList<Dado> dadosParciales){
+    public ArrayList<Dado> obtenerDadosConPuntos(ArrayList<Dado> dadosParciales){ //filtra los dados con puntos (aplicando trios y/o 1,5)
         ArrayList<Dado> dados_a_apartar=new ArrayList<>();
         int cantidad_dos_agregados=0;
         int cantidad_tres_agregados=0;
@@ -212,15 +185,15 @@ public class Reglas {
         int cantidad_seis_agregados=0;
         for(Dado d: dadosParciales){
             switch (d.getValorCaraSuperior()){
-                case 1:
-                    dados_a_apartar.add(d);
+                case 1: //si el valor de la cara es 1:
+                    dados_a_apartar.add(d); //siempre puntua, lo agrego a dados con puntos
                     break;
-                case 2:
-                    if(cantidad_caras(2,dadosParciales)==3){
-                        dadosParciales.add(d);
+                case 2: //si el valor de la cara es 2:
+                    if(cantidad_caras(2,dadosParciales)==3){ //hay exactamente 3 doses?
+                        dados_a_apartar.add(d); //los agregos a dados con puntos
                     }
-                    else if(cantidad_caras(2,dadosParciales)>3){
-                        if(cantidad_dos_agregados<3){
+                    else if(cantidad_caras(2,dadosParciales)>3){ //hay mas de 3 doses?
+                        if(cantidad_dos_agregados<3){ //solo puntuan 3, los agrego
                             dados_a_apartar.add(d);
                             cantidad_dos_agregados++;
                         }
@@ -228,7 +201,7 @@ public class Reglas {
                     break;
                 case 3:
                     if(cantidad_caras(3,dadosParciales)==3){
-                        dadosParciales.add(d);
+                        dados_a_apartar.add(d);
                     }
                     else if(cantidad_caras(3,dadosParciales)>3){
                         if(cantidad_tres_agregados<3){
@@ -239,7 +212,7 @@ public class Reglas {
                     break;
                 case 4:
                     if(cantidad_caras(4,dadosParciales)==3){
-                        dadosParciales.add(d);
+                        dados_a_apartar.add(d);
                     }
                     else if(cantidad_caras(4,dadosParciales)>3){
                         if(cantidad_cuatro_agregados<3){
@@ -253,7 +226,7 @@ public class Reglas {
                     break;
                 case 6:
                     if(cantidad_caras(6,dadosParciales)==3){
-                        dadosParciales.add(d);
+                        dados_a_apartar.add(d);
                     }
                     else if(cantidad_caras(6,dadosParciales)>3){
                         if(cantidad_seis_agregados<3){
@@ -266,7 +239,8 @@ public class Reglas {
         }
         return dados_a_apartar;
     }
-    private int cantidad_caras(int cara, ArrayList<Dado> dados){
+
+    private int cantidad_caras(int cara, ArrayList<Dado> dados){ //cuento la cantidad de "cara"(numero especifico) que hay en un array
         int cantidad_caras=0;
         for(Dado d: dados){
             if(d.getValorCaraSuperior()==cara){
@@ -276,17 +250,6 @@ public class Reglas {
         return cantidad_caras;
     }
 
-    public boolean verificar_si_puede_apartar(ArrayList<Dado> dadosApartados){
-        int[] cantidad= cantidadDados(dadosApartados);
-
-        for (Dado dadosApartado : dadosApartados) {
-            int n = dadosApartado.getValorCaraSuperior();
-            if ((n != 5 && n != 1 && cantidad[n] != 3)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private boolean tieneDadosConPuntos(ArrayList<Dado> dadosParciales){ //con esto puedo chequear que si el usuario me pide seguir, pueda.
         int[] conteo = cantidadDados(dadosParciales);

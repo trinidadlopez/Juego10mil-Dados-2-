@@ -1,6 +1,8 @@
 package Modelo;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Jugador implements Serializable { //tercer cosa que agregue 17/12, lo de serializable
@@ -11,32 +13,33 @@ public class Jugador implements Serializable { //tercer cosa que agregue 17/12, 
     private int nroJugador;
     private ArrayList<Dado> dadosParciales;
     private Cubilete cubilete;
+    private String fechaJugado;
 
     public Jugador(String nombreJugador, ArrayList<Dado> dadosApartados) {
         this.nombreJugador = nombreJugador;
         this.puntajeTotal = 0;
         this.puntajeParcial = 0;
-        this.dadosApartados = dadosApartados;
+        this.dadosApartados = new ArrayList<>();
         this.dadosParciales = new ArrayList<>();
         this.cubilete = new Cubilete();
+        LocalDate fechaActual = LocalDate.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        this.fechaJugado = fechaActual.format(formato);
     }
 
-    public void apartarDados(ArrayList<Dado> dado){
-        dadosApartados.addAll(dado);
-        getCubilete().getDados().removeAll(dado);
-    }
-
+    //GETs
     public String getNombreJugador() {
         return nombreJugador;
     }
 
-    public void setNroJugador(int nroJugador){
-        this.nroJugador = nroJugador;
+    public String getFechaJugado() {
+        return fechaJugado;
     }
 
     public int getNroJugador(){
         return nroJugador;
     }
+
     public int getPuntajeTotal() {
         return puntajeTotal;
     }
@@ -53,8 +56,9 @@ public class Jugador implements Serializable { //tercer cosa que agregue 17/12, 
         return dadosApartados;
     }
 
-    public Cubilete getCubilete() {
-        return cubilete;
+    //SETs
+    public void setNroJugador(int nroJugador){
+        this.nroJugador = nroJugador;
     }
 
     public void setDadosParciales(ArrayList<Dado> dadosParciales) {

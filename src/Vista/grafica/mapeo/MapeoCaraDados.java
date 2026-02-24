@@ -1,4 +1,4 @@
-package Vista.mapeo;
+package Vista.grafica.mapeo;
 
 import javax.swing.*;
 import java.util.HashMap;

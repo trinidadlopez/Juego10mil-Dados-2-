@@ -11,19 +11,25 @@ public interface IJuego extends IObservableRemoto {
 
     void iniciar_jugador(Jugador jugador) throws RemoteException;
 
-    ArrayList<Jugador> getJugadores()throws RemoteException;
-
     void comenzarJuego() throws RemoteException;
 
    void lanzar()throws RemoteException;
 
     void apartar_dados() throws RemoteException;
 
-    Jugador getJugadorActual() throws RemoteException;
-
     void actualizar_turno_jugador() throws RemoteException;
+
+    void jugador_plantado() throws RemoteException;
+
+    Object[][] getTablaRanking() throws RemoteException;
+
+    ArrayList<Jugador> getJugadores()throws RemoteException;
 
     int getNroRonda() throws RemoteException;
 
-    void jugador_plantado() throws RemoteException;
+    Jugador getJugadorActual() throws RemoteException;
+
+    void resetearJuego() throws RemoteException;
+
+    EstadoJugada getEstadoJugada() throws RemoteException;
 }

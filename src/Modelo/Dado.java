@@ -1,9 +1,8 @@
 package Modelo;
 
 import java.io.Serializable;
-import java.util.Random;
 
-public class Dado implements Serializable { //cuarta cosa que agregue 17/12, serializable
+public class Dado implements Serializable {
     private int[] caras;
     private int valorCaraSuperior;
 
@@ -16,13 +15,6 @@ public class Dado implements Serializable { //cuarta cosa que agregue 17/12, ser
         caras[4]=5;
         caras[5]=6;
     }
-
-    /*public void tirarse(){ //elige un indice del dado(una cara) y te dice que valor hay en él
-        Random rand = new Random();
-        int indiceAleatorio = rand.nextInt(caras.length);
-        int valor = caras[indiceAleatorio];
-        valorCaraSuperior=valor;
-    }*/
 
     public int getValorCaraSuperior() {
         return valorCaraSuperior;

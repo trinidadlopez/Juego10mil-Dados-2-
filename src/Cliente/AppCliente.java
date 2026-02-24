@@ -1,16 +1,21 @@
 package Cliente;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.border.Border;
 
 import Controlador.Controlador;
-import Vista.VistaGrafica;
+import Vista.IVista;
+import Vista.consola.VistaConsola;
+import Vista.grafica.VistaGrafica;
 //import VistaConsola.VistaJuego;
 import ar.edu.unlu.rmimvc.RMIMVCException;
 import ar.edu.unlu.rmimvc.Util;
-import ar.edu.unlu.rmimvc.cliente.Cliente;
 
 public class AppCliente {
 
@@ -50,18 +55,53 @@ public class AppCliente {
         );
 
         Controlador controlador = new Controlador();
+
+        JFrame elegir = new JFrame("Juego 10mil Dados - Eleccion vista");
+        JPanel panelPrincipal = new JPanel(new BorderLayout());
+        JPanel panelBotones = new JPanel(new FlowLayout());
+        JButton btnVConsola = new JButton("Consola");
+        JButton btnVGrafica = new JButton("Grafica");
+        JLabel eleccion = new JLabel("Elija la vista que desea usar: ");
+        panelBotones.add(btnVGrafica, SwingConstants.CENTER);
+        panelBotones.add(btnVConsola, SwingConstants.CENTER);
+        panelPrincipal.add(eleccion, BorderLayout.CENTER);
+        panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
+        elegir.setContentPane(panelPrincipal);
+        elegir.setBounds(100,100,400,100);
+        elegir.setVisible(true);
+        eleccion.setHorizontalAlignment(SwingConstants.CENTER);
+        eleccion.setVerticalAlignment(SwingConstants.CENTER);
         ar.edu.unlu.rmimvc.cliente.Cliente c = new ar.edu.unlu.rmimvc.cliente.Cliente(ip, Integer.parseInt(port), ipServidor, Integer.parseInt(portServidor));
-        VistaGrafica vistaGrafica = new VistaGrafica(controlador);
-        vistaGrafica.iniciar();
-        try {
-            c.iniciar(controlador);
-        } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (RMIMVCException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        btnVGrafica.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                IVista vistaGrafica = new VistaGrafica(controlador);
+                controlador.setVista(vistaGrafica);
+                try {
+                    vistaGrafica.iniciar();
+                    c.iniciar(controlador);
+                } catch (RemoteException | RMIMVCException ex) {
+                    throw new RuntimeException(ex);
+                }
+                elegir.setVisible(false);
+            }
+
+        });
+        btnVConsola.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    IVista vistaConsola = new VistaConsola(controlador);
+                    vistaConsola.iniciar();
+                    c.iniciar(controlador);
+                } catch (RemoteException | RMIMVCException ex) {
+                    throw new RuntimeException(ex);
+                }
+                elegir.setVisible(false);
+            }
+        });
+
+
     }
 
 }

@@ -1,7 +1,6 @@
-package Vista;
+package Vista.grafica;
 
 import Controlador.Controlador;
-import Vista.mapeo.MapeoCaraDados;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 public class VJuego extends JFrame {
     private VistaGrafica vista;
     private Controlador controlador;
-    private MapeoCaraDados mapeo;
     private JLabel fondo;
     private JLabel cubilete;
     private JButton btnLanzar;
@@ -22,10 +20,11 @@ public class VJuego extends JFrame {
     private ArrayList<JLabel> dadosMios;
     private ArrayList<JLabel> dadosOtros;
     private ArrayList<JLabel> dadosApartados;
-
     private JPanel panelMisDados;
     private JPanel panelDadosOtros;
     private JPanel panelDadosApartados;
+    private JDMensajes mensajes;
+    private JDPuntaje tabla_puntaje;
 
     public VJuego(VistaGrafica vista, Controlador controlador) {
         inicializar_comp(vista, controlador);
@@ -34,13 +33,14 @@ public class VJuego extends JFrame {
     private void inicializar_comp(VistaGrafica vista, Controlador controlador) {
         this.vista = vista;
         this.controlador = controlador;
-        this.mapeo = new MapeoCaraDados();
+
+        mensajes = new JDMensajes(this,controlador,vista);
+        tabla_puntaje = new JDPuntaje(this,controlador,vista);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1200, 700); //le da tamaño a la ventana y la centra
         setLocationRelativeTo(null);
         setResizable(true);
-        
 
         // fondo
         ImageIcon fondoJ = new ImageIcon("src/ImagenesJuego/fondo.png");
@@ -78,7 +78,7 @@ public class VJuego extends JFrame {
 
         //PARA DARLE MAS PROTAGONISMO A LOS BOTONES
         btnLanzar.setPreferredSize(new Dimension(160, 45));
-        btnApartar.setPreferredSize(new Dimension(160, 45));
+        btnApartar.setPreferredSize(new Dimension(185, 45));
         btnPlantarse.setPreferredSize(new Dimension(160, 45));
 
         //PANEL DADOS APARTADOS
@@ -141,9 +141,10 @@ public class VJuego extends JFrame {
                 }
             }
         });
+
     }
 
-
+    // mostrar
     public void mostrar_mis_dados(ArrayList<Integer> valores){
         panelMisDados.setVisible(false);
         actualizarListaDados(valores, panelMisDados, 100, 100, dadosMios);
@@ -154,47 +155,13 @@ public class VJuego extends JFrame {
         panelDadosOtros.setVisible(false);
         actualizarListaDados(valores, panelDadosOtros, 50, 50, dadosOtros);
         panelDadosOtros.setVisible(true);
-
     }
 
-    public void actualizarListaDados(ArrayList<Integer> valores, JPanel panel, int ancho, int alto, ArrayList<JLabel> lista){
-        panel.removeAll();
-
-        for (int i =0 ; i < valores.size() ; i++) {
-            int valor = valores.get(i);
-            System.out.println("Cargando dado " + i + " valor=" + valor);
-            ImageIcon iconoOriginal = new ImageIcon(
-                    getClass().getResource("/ImagenesJuego/cara" + valor + ".png" )
-            );
-            Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(
-                    ancho, alto, Image.SCALE_SMOOTH
-            );
-            JLabel dado = new JLabel(new ImageIcon(imagenEscalada));
-            lista.add(dado);
-            panel.add(dado);
-        }
-
-        panel.revalidate();
-        panel.repaint();
+    public void mostrarTabla(){
+        tabla_puntaje.mostrarTabla();
     }
 
-
-
-    public void dados_apartados(ArrayList<Integer> dadosApart){
-        panelDadosApartados .removeAll();
-        panelDadosOtros.setVisible(false);
-        panelMisDados.setVisible(false);
-
-        actualizarListaDados(dadosApart, panelDadosApartados, 50, 50, dadosApartados);
-
-        panelDadosApartados.setVisible(true);
-        panelDadosApartados.revalidate();
-        panelDadosApartados.repaint();
-
-
-    }
-
-    //BOTONES
+    //botones
     public void deshabilitarBotonesTodos(){
         btnLanzar.setEnabled(false);
         btnPlantarse.setEnabled(false);
@@ -207,13 +174,66 @@ public class VJuego extends JFrame {
         btnApartar.setEnabled(false);
     }
 
-
     public void habilitarBotonesPlantarseYApartar() {
         btnPlantarse.setEnabled(true);
         btnApartar.setEnabled(true);
         btnLanzar.setEnabled(false);
     }
 
+    // mensajes
+    public void turno(String nombre){
+        mensajes.msjTurno(nombre);
+    }
+
+    public void msjPlantado(String nombre, int puntos){
+        mensajes.mostrarPlantado(nombre, puntos);
+    }
+
+    public void msjEscalera(String nombre){
+        mensajes.escalera(nombre);
+    }
+
+    public void msjDadosSinPuntos(String nombre){
+        mensajes.dadosSinPuntos(nombre);
+    }
+
+
+    // actualizar
+    public void actualizarListaDados(ArrayList<Integer> valores, JPanel panel, int ancho, int alto, ArrayList<JLabel> lista){
+        panel.removeAll();
+        for (int i =0 ; i < valores.size() ; i++) {
+            int valor = valores.get(i);
+            ImageIcon iconoOriginal = new ImageIcon(
+                    getClass().getResource("/ImagenesJuego/cara" + valor + ".png" )
+            );
+            Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(
+                    ancho, alto, Image.SCALE_SMOOTH
+            );
+            JLabel dado = new JLabel(new ImageIcon(imagenEscalada));
+            lista.add(dado);
+            panel.add(dado);
+        }
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    public void actualizarTablaPuntaje (int puntaje, String nombre, int puntajeTotal, int ronda){
+        tabla_puntaje.agregarPuntaje(puntaje, nombre, puntajeTotal, ronda);
+    }
+
+    public void dados_apartados(ArrayList<Integer> dadosApart) {
+        panelDadosApartados.removeAll();
+        panelDadosOtros.setVisible(false);
+        panelMisDados.setVisible(false);
+
+        actualizarListaDados(dadosApart, panelDadosApartados, 50, 50, dadosApartados);
+
+        panelDadosApartados.setVisible(true);
+        panelDadosApartados.revalidate();
+        panelDadosApartados.repaint();
+    }
+
+    // limpiar dados
     public void limpiar_dados_mesa(){
         dadosOtros.clear();
         dadosMios.clear();
@@ -230,7 +250,9 @@ public class VJuego extends JFrame {
         panelMisDados.repaint();
         panelDadosOtros.repaint();
         panelDadosApartados.repaint();
-
     }
 
+    public void limpiar_tabla_puntaje(){
+        tabla_puntaje.clear();
+    }
 }

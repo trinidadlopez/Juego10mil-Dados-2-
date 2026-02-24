@@ -1,26 +1,25 @@
-package Vista;
+package Vista.grafica;
 
 import Controlador.Controlador;
-import Modelo.Jugador;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.rmi.RemoteException;
 
-public class VPuntaje extends JFrame{
+public class JDPuntaje extends JDialog{
     DefaultTableModel modeloTabla;
     JTable tabla_puntaje;
     JScrollPane panel;
     Timer timer;
     Controlador controlador;
-    VistaGrafica vista;
 
-    public VPuntaje(Controlador controlador, VistaGrafica vista){
-        inicializar_comp(controlador, vista);
+    public JDPuntaje(JFrame vistaPadre, Controlador controlador, VistaGrafica vistaGrafica){
+        super(vistaPadre, false);
+        inicializar_comp(controlador, vistaGrafica);
+        
     }
 
     private void inicializar_comp(Controlador controlador, VistaGrafica vista){
-        this.vista = vista;
         this.controlador = controlador;
         iniciarTimer();
         setTitle("Juego10Mil - Puntajes");
@@ -34,7 +33,12 @@ public class VPuntaje extends JFrame{
         modeloTabla.addColumn("PUNTAJE RONDA");
         modeloTabla.addColumn("PUNTAJE TOTAL");
 
-        tabla_puntaje = new JTable();
+        tabla_puntaje = new JTable(){
+            @Override
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+        };
         tabla_puntaje.setModel(modeloTabla);
         panel = new JScrollPane(tabla_puntaje);
         setContentPane(panel);
@@ -44,23 +48,28 @@ public class VPuntaje extends JFrame{
         modeloTabla.addRow(new Object[]{
                 nombre,ronda,puntaje,puntajeT
         });
-        setVisible(false);
     }
 
     public void mostrarTabla(){
-        setVisible(false);
+        setLocationRelativeTo(null);
+        setVisible(true);
         timer.start();
     }
 
     public void iniciarTimer() { /// timer interno: no se ve por los jugadores.
-        timer = new Timer(5000, e -> { //2000 = 2 segundos
+        timer = new Timer(4000, e -> { //2000 = 2 segundos
             try {
-                controlador.procesar_eventos_pendientes();
                 setVisible(false);
+                controlador.procesar_eventos_pendientes();
             } catch (RemoteException ex) {
                 throw new RuntimeException(ex);
             }
         });
         timer.setRepeats(false);
     }
+
+    public void clear(){
+        modeloTabla.setRowCount(0);
+    }
+
 }

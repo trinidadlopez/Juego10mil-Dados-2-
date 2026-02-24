@@ -1,0 +1,12 @@
+package Vista.consola;
+
+public enum EstadoVistaConsola {
+    MENU_PRINCIPAL,
+    REGLAS,
+    INGRESO_NOMBRE_JUGADOR,
+    LANZAR_DADOS,
+    ESPERANDO_DECISION,
+    ULTIMA_DECISION,
+    RANKING,
+    ESPERANDO_JUGADORES
+}

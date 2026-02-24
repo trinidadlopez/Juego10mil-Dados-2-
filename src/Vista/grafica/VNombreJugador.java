@@ -1,4 +1,4 @@
-package Vista;
+package Vista.grafica;
 
 import Controlador.Controlador;
 
@@ -22,16 +22,14 @@ public class VNombreJugador extends JFrame {
         inicializar_comp(vista, controlador);
     }
 
-    public void inicializar_comp(VistaGrafica vista, Controlador controlador){
+    private void inicializar_comp(VistaGrafica vista, Controlador controlador){
         this.controlador = controlador;
         this.vista = vista;
 
         setResizable(false); //puede no estar. Es para que no se pueda redimensionar
-        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
-        setBounds(100, 100, 350,200);
-        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
-        setBounds(100, 100, 400, 109);
+        setSize(400, 109);
+        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
         panel = new JPanel();
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(panel);
