@@ -26,10 +26,10 @@ public class VistaGrafica implements IVista {
     public void iniciar(){
         menuPrincipal = new VMenuPrincipal(this, controlador);
         nombreJugador = new VNombreJugador(this, controlador);
-        lobby = new VLobby(this, controlador);
-        ventanaJuego= new VJuego(this, controlador);
+        lobby = new VLobby(controlador);
+        ventanaJuego= new VJuego(controlador);
         ventana_reglas = new VReglas(this);
-        ranking = new JDRanking(menuPrincipal, controlador, this);
+        ranking = new JDRanking(menuPrincipal, this);
         mostrarMenuPrincipal();
     }
 
@@ -81,7 +81,7 @@ public class VistaGrafica implements IVista {
     @Override
     public void mostrarGanador(String nombre, int puntos){
         ventanaJuego.setVisible(false);
-        VGanador ganador = new VGanador(controlador, this,nombre,puntos);
+        VGanador ganador = new VGanador(controlador, nombre,puntos);
         ganador.setVisible(true);
         juegoMostrado = false;
     }
@@ -114,6 +114,10 @@ public class VistaGrafica implements IVista {
     public void mensajeDadosSinPuntos(String nombre){
         ventanaJuego.deshabilitarBotonesTodos();
         ventanaJuego.msjDadosSinPuntos(nombre);
+    }
+
+    public void mensajeMaxApartado(String nombre, int punto){
+        ventanaJuego.msjMaxApartado(nombre, punto);
     }
 
     //botones y turnos

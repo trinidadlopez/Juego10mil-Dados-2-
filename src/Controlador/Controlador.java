@@ -93,19 +93,15 @@ public class Controlador implements IControladorRemoto {
                     break;
                 case COMENZAR_JUEGO:
                     boolean rta = false;
-                    System.out.println("Mi numero de jugadro es: "+nroJugador);
                     for(Jugador j: juego.getJugadores()){
-                        System.out.println(j.getNombreJugador());
                         if(j.getNroJugador() == nroJugador){
                             rta=true;
                         }
                     }
                     if(rta==false){
-                        System.out.println("Entro al if de rta==false");
                         terminarJuego();
                     }
                     else{
-                        System.out.println("Entro al else de rta == true");
                         boolean esMiTurno = juego.getJugadorActual().getNroJugador()==nroJugador;
                         vista.iniciar_juego(juego.getJugadorActual().getNombreJugador(), esMiTurno);
                     }
@@ -157,6 +153,10 @@ public class Controlador implements IControladorRemoto {
                     vista.mostrarDadosApartados(dadosA);
                     boolean es_mi_turno = juego.getJugadorActual().getNroJugador()==nroJugador;
                     vista.solo_chequear_botones(es_mi_turno);
+                    break;
+                case MAX_APARTADOS:
+                    estadoIz = EstadoInterfaz.MAXIMO_APARTADOS;
+                    vista.mensajeMaxApartado(juego.getJugadorActual().getNombreJugador(), juego.getJugadorActual().getPuntajeParcial());
                     break;
                 case ESCALERA_OBTENIDA:
                     manejarEscalera();

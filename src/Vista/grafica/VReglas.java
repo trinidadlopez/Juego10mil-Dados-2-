@@ -20,20 +20,23 @@ public class VReglas extends JFrame {
         this.panel = new JPanel(new BorderLayout());
         this.txt = new JTextArea();
 
-        setSize(500, 500); //x: posicion horizontal(pantalla), y: posicion vertical(pantalla), width: ancho, height: alto
-        setContentPane(panel);
-        setLocationRelativeTo(null);
         setTitle("Juego 10mil - Reglas");
+        setSize(500, 500); //x: posicion horizontal(pantalla), y: posicion vertical(pantalla), width: ancho, height: alto
+        setLocationRelativeTo(null);
         txt.setLineWrap(true); //activo el salto de linea automatico cuando llega al borde derecho
         txt.setWrapStyleWord(true); //hace que el salto de linea sea por palabra completa y no se corte en el medio
         txt.setEditable(false);
+        setContentPane(panel);
+
         JScrollPane scrollPane = new JScrollPane(txt);
         panel.add(scrollPane, BorderLayout.CENTER);
-        setVisible(false);
         txt.setCaretPosition(0); //mueve el cursor al principio del texto asi arranca a mostrarse desde ahi
         txt.setFont(new Font("SansSerif", Font.PLAIN, 14)); //(nombre, estilo, tamaño)
+
         btnVolver = new JButton("Volver");
         panel.add(btnVolver, BorderLayout.SOUTH);
+
+        setVisible(false);
 
         btnVolver.addActionListener(new ActionListener() {
             @Override
@@ -45,7 +48,8 @@ public class VReglas extends JFrame {
 
         txt.append("REGLAS DEL JUEGO 10 MIL - DADOS\n" +
                 "\n" +
-
+                "El juego de dados 10Mil se juega con 5 dados comunes de seis caras." +
+                "Pueden participar entre 2 y 6 jugadores, que se turnan para lanzar los dados e intentar sumar puntos hasta alcanzar los 10.000."+
                 "---------------------------\n"+
                 "Objetivo del Juego\n" +
                 "---------------------------\n"+
@@ -59,12 +63,12 @@ public class VReglas extends JFrame {
 
                 "Para sumar puntos deberas obtener en cada lanzamientos dados o combinaciones que te ayuden a sumar puntos.\n" +
                 "\n" +
-                "Los dados con el numero suman cada uno 100 puntos y los dados con el numero 5 suman 50 puntos cada uno.\n" +
+                "Los dados con el numero 1 suman cada uno 100 puntos y los dados con el numero 5 suman 50 puntos cada uno.\n" +
                 "Si obtenes tres dados iguales del mismo valor, se suma como una centena.\n" +
                 "Por ejemplo, tres dados iguales con el numero cuatro suma 400 puntos y tres iguales con el numero dos suman 200 puntos.\n" +
-                "La unica expecion es el numero uno porque al obtenes tres dados iguales se suman 1000 puntos.\n" +
+                "La unica expecion es el numero uno porque al obtener tres dados iguales se suman 1000 puntos.\n" +
                 "\n" +
-                "En caso de con seguir una escalera el jugador sumara 500 puntos.\n" +
+                "En caso de conseguir una escalera el jugador sumara 500 puntos.\n" +
                 "\n"+
 
                 "-------------------------------\n"+
@@ -85,21 +89,23 @@ public class VReglas extends JFrame {
                 "Dinamica del Juego\n" +
                 "-----------------------------\n"+
 
-                "Un jugador/ lanza los dados: el jugador decide en cada turno si se planta y conserva lo acumulado, \n" +
-                "o si arriesga un nuevo lanzamiento con los dados restantes. Si en un lanzamiento tiene puntos, estos se suman\n" +
-                "al total acumulado. Pero si en un lanzamiento no aparece ni un 1 ni un 5 o alguna combinacion, pierde el turno\n"+
-                "y los puntos obtenidos en esa ronda.\n"+
-                "yLa estatregia está en elegir entre asegurar lo ganado o seguir arriesgando.\n"+
+                "Un jugador lanza los dados. En cada turno puede decide si se planta y conserva los puntos acumulados,\n" +
+                "o si arriesga un nuevo lanzamiento con los dados restantes.\n"+
+                "Si en un lanzamiento obtiene puntos, estos se suman al total acumulado en esa ronda.\n"+
+                "Si el jugador decide apartar uno o más dados que le otorguen puntaje, únicamente podrá volver a lanzar\n"+
+                "los dados que no hayan sido apartados.\n"+
+                "Si en un lanzamiento no aparece ningún 1, ningún 5 ni una combinación válida, pierde el turno\n"+
+                "y también los puntos obtenidos en esa ronda.\n"+
+                "La estrategia consiste en elegir entre asegurar lo ganado o seguir arriesgando.\n"+
                 "En ocasiones, un buen lanzamiento puede disparar el puntaje (como obtener tres 1 y sumar 1000 puntos),\n"+
                 "pero siempre con el riesgo de perderlo todo si no salen ni un 1 ni un 5 o combinaciones.\n"+
 
                 "\n" +
+                "-----------------------------\n"+
+                "¿Quién gana?" +
+                "-----------------------------\n"+
+                "Gana el jugador/a que llegue primero a 10mil puntos!\n");
 
-                "---------------------------\n"+
-                "Fin del Juego\n" +
-                "----------------------\n"+
-
-                "El juego termina cuando algun jugador llega a 10mil puntos\n");
     }
 
 }

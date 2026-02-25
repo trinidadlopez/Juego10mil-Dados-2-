@@ -10,7 +10,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class VJuego extends JFrame {
-    private VistaGrafica vista;
     private Controlador controlador;
     private JLabel fondo;
     private JLabel cubilete;
@@ -26,21 +25,20 @@ public class VJuego extends JFrame {
     private JDMensajes mensajes;
     private JDPuntaje tabla_puntaje;
 
-    public VJuego(VistaGrafica vista, Controlador controlador) {
-        inicializar_comp(vista, controlador);
+    public VJuego(Controlador controlador) {
+        inicializar_comp(controlador);
     }
 
-    private void inicializar_comp(VistaGrafica vista, Controlador controlador) {
-        this.vista = vista;
+    private void inicializar_comp(Controlador controlador) {
         this.controlador = controlador;
 
-        mensajes = new JDMensajes(this,controlador,vista);
-        tabla_puntaje = new JDPuntaje(this,controlador,vista);
+        mensajes = new JDMensajes(this,controlador);
+        tabla_puntaje = new JDPuntaje(this,controlador);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1200, 700); //le da tamaño a la ventana y la centra
         setLocationRelativeTo(null);
-        setResizable(true);
+        setResizable(false); //puede no estar. Es para que no se pueda redimensionar
 
         // fondo
         ImageIcon fondoJ = new ImageIcon("src/ImagenesJuego/fondo.png");
@@ -197,6 +195,10 @@ public class VJuego extends JFrame {
         mensajes.dadosSinPuntos(nombre);
     }
 
+    public void msjMaxApartado(String nombre,int punto){
+        deshabilitarBotonesTodos();
+        mensajes.maxApartado(nombre, punto);
+    }
 
     // actualizar
     public void actualizarListaDados(ArrayList<Integer> valores, JPanel panel, int ancho, int alto, ArrayList<JLabel> lista){

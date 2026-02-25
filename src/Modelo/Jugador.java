@@ -12,7 +12,6 @@ public class Jugador implements Serializable { //tercer cosa que agregue 17/12, 
     private ArrayList<Dado> dadosApartados;
     private int nroJugador;
     private ArrayList<Dado> dadosParciales;
-    private Cubilete cubilete;
     private String fechaJugado;
 
     public Jugador(String nombreJugador, ArrayList<Dado> dadosApartados) {
@@ -21,7 +20,6 @@ public class Jugador implements Serializable { //tercer cosa que agregue 17/12, 
         this.puntajeParcial = 0;
         this.dadosApartados = new ArrayList<>();
         this.dadosParciales = new ArrayList<>();
-        this.cubilete = new Cubilete();
         LocalDate fechaActual = LocalDate.now();
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         this.fechaJugado = fechaActual.format(formato);

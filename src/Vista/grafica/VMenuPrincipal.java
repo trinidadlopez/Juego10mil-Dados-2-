@@ -27,17 +27,19 @@ public class VMenuPrincipal extends JFrame {
         this.controlador = controlador;
         this.vista = vista;
 
+        setTitle("Juego 10mil - Dados");
+        setSize(300, 300);
         setResizable(false); //puede no estar. Es para que no se pueda redimensionar
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
-        setSize(300, 300);
         setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
+
         panel = new JPanel();
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        setContentPane(panel);
-        setTitle("Juego 10mil - Dados");
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        setContentPane(panel);
 
         panel.add(Box.createVerticalStrut(20));
+
         lblMP = new JLabel("MENU PRINCIPAL");
         lblMP.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblMP.setHorizontalAlignment(SwingConstants.CENTER);
@@ -48,7 +50,7 @@ public class VMenuPrincipal extends JFrame {
         panel.add(btnJugar);
         panel.add(Box.createVerticalStrut(15));
 
-        btnReglas = new JButton("Reglas");
+        btnReglas = new JButton("Reglas y Cómo Jugar");
         btnReglas.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(btnReglas);
         panel.add(Box.createVerticalStrut(15));

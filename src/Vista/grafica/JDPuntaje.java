@@ -13,13 +13,13 @@ public class JDPuntaje extends JDialog{
     Timer timer;
     Controlador controlador;
 
-    public JDPuntaje(JFrame vistaPadre, Controlador controlador, VistaGrafica vistaGrafica){
+    public JDPuntaje(JFrame vistaPadre, Controlador controlador){
         super(vistaPadre, false);
-        inicializar_comp(controlador, vistaGrafica);
+        inicializar_comp(controlador);
         
     }
 
-    private void inicializar_comp(Controlador controlador, VistaGrafica vista){
+    private void inicializar_comp(Controlador controlador){
         this.controlador = controlador;
         iniciarTimer();
         setTitle("Juego10Mil - Puntajes");

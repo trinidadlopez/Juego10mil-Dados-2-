@@ -11,14 +11,13 @@ public class JDMensajes extends JDialog{
     private JLabel texto;
     private Controlador controlador;
     private Timer timer;
-    private JButton btnOK;
 
-    public JDMensajes(JFrame vistaPadre, Controlador controlador, VistaGrafica vistaGrafica){
+    public JDMensajes(JFrame vistaPadre, Controlador controlador){
         super(vistaPadre, false);
-        inicializar(controlador, vistaGrafica);
+        inicializar(controlador);
     }
 
-    private void inicializar(Controlador controlador, VistaGrafica vistaGrafica){
+    private void inicializar(Controlador controlador){
         this.controlador = controlador;
         iniciarTimer();
 
@@ -30,12 +29,8 @@ public class JDMensajes extends JDialog{
         texto.setVisible(true);
         setContentPane(panelPrincipal);
         pack(); //la ventana se ajusta al tamño del textos
-        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
+        setLocationRelativeTo(null); // Centra la ventana en la pantalla (si todavía no está visible)
         setVisible(false);
-
-        btnOK = new JButton("Ok");
-        panelPrincipal.add(btnOK, BorderLayout.SOUTH);
-        btnOK.setVisible(false);
 
     }
 
@@ -53,6 +48,15 @@ public class JDMensajes extends JDialog{
 
     public void msjTurno(String nombre){
         texto.setText("Turno del jugador/a: " + nombre);
+        pack();
+        setVisible(true);
+        texto.setVisible(true);
+        panelPrincipal.setVisible(true);
+        timer.start();
+    }
+
+    public void maxApartado(String nombre, int puntos){
+        texto.setText(nombre + " apartó la cantidad maxima de dados. Sus puntos en esta ronda son: " + puntos);
         pack();
         setVisible(true);
         texto.setVisible(true);
@@ -87,13 +91,5 @@ public class JDMensajes extends JDialog{
         timer.start();
     }
 
-    public void maxApartado(String nombre, int puntos){
-        texto.setText( nombre + " ya apartó la cantidad maxima de dados! Sus puntos son: " + puntos);
-        pack();
-        setVisible(true);
-        texto.setVisible(true);
-        panelPrincipal.setVisible(true);
-        timer.start();
-    }
 
 }

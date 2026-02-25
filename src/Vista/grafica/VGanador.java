@@ -14,11 +14,9 @@ public class VGanador extends JFrame {
     private JButton btnSalir;
     private JButton btnVolverAJugar;
     private JLabel mensaje;
-    private VistaGrafica vista;
     private Controlador controlador;
 
-    public VGanador(Controlador controlador, VistaGrafica vista, String nombreGanador, int puntosGanador) {
-        this.vista = vista;
+    public VGanador(Controlador controlador,String nombreGanador, int puntosGanador) {
         this.controlador=controlador;
 
         setTitle("Fin de la partida");
@@ -49,7 +47,7 @@ public class VGanador extends JFrame {
         setContentPane(panel);
         pack();
         setMinimumSize(new Dimension(350, 180));
-        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
+        setLocationRelativeTo(null); // centra la ventana en la pantalla (si todavía no está visible)
 
         btnVolverAJugar.addActionListener(new ActionListener() {
             @Override

@@ -26,7 +26,7 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         reglas = Reglas.getInstance();
         cubilete = new Cubilete();
         this.ranking = this.admRanking.cargarRanking(); //le pide al administrador de ranking que cargue el ranking(desde el archivo) y guarda el resultado en el atributo ranking
-        admRanking.vaciarRanking();
+        //admRanking.vaciarRanking();
     }
 
     // inicializar y jugadores
@@ -45,7 +45,7 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
                 jugadorActual = jugador;
             }
         }
-        // mostrar mensaje juego en curso, no se puede agregar
+        //juego en curso, no se puede agregar jugador
     }
 
     @Override
@@ -59,8 +59,8 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         ArrayList<Dado> resultados = cubilete.tirarse();
         jugadorActual.setDadosParciales(resultados);
         notificarObservadores(DADOS_LANZADOS);
-        chequear_estado_tirada();
-        analizar_estado_tirada();
+        chequear_estado_tirada(); //cheqeuo en que estado estan mis dados
+        analizar_estado_tirada(); //me fijo que hago con ese estado
     }
 
     private void chequear_estado_tirada() {
@@ -119,6 +119,7 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
                     reglas.calcularPuntaje(jugadorActual.getDadosApartados())
             );
             jugadorActual.setPuntajeTotal();
+            notificarObservadores(MAX_APARTADOS);
             notificarObservadores(PUNTAJE_ACTUALIZADO);
             actualizar_turno_jugador();
             return;
@@ -131,7 +132,7 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         jugadorActual.getDadosParciales().clear();
         jugadorActual.getDadosApartados().clear();
 
-        if (jugadorActual.getPuntajeTotal() >= 1000) { //son 10.000 puntos, pongo menos para chequear cosas
+        if (jugadorActual.getPuntajeTotal() >= 10000) { //son 10.000 puntos, pongo menos para chequear cosas
             finalizar_partida(jugadorActual);
             return;
         }

@@ -67,7 +67,8 @@ public class AppCliente {
         panelPrincipal.add(eleccion, BorderLayout.CENTER);
         panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
         elegir.setContentPane(panelPrincipal);
-        elegir.setBounds(100,100,400,100);
+        elegir.setSize(400,100);
+        elegir.setLocationRelativeTo(null);
         elegir.setVisible(true);
         eleccion.setHorizontalAlignment(SwingConstants.CENTER);
         eleccion.setVerticalAlignment(SwingConstants.CENTER);

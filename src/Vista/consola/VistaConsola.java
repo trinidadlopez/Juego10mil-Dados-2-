@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class VistaConsola extends JFrame implements IVista{
     private Controlador controlador;
@@ -94,9 +95,10 @@ public class VistaConsola extends JFrame implements IVista{
             println("1. LANZAR los dados");
             estado = EstadoVistaConsola.LANZAR_DADOS;
         }else{
-            txtEntradaJugador.setEditable(false);
+            //txtEntradaJugador.setEditable(false);
             println("");
             println("Esperando que " + nombre + " juegue...");
+            txtEntradaJugador.setEditable(false);
         }
     }
 
@@ -117,7 +119,24 @@ public class VistaConsola extends JFrame implements IVista{
                 setTitle("Juego 10mil - En curso. Vista de " + controlador.nombreJugadorVentana());
                 break;
             case LANZAR_DADOS:
-                controlador.lanzar_dados();
+                if (entrada.equals("1")) {
+                    //limpiarPantalla();
+                    controlador.lanzar_dados();
+                } else {
+                    println("");
+                    println("Opcion no valida. Por favor elija una opcion valida.");
+                    println("1. LANZAR los dados");
+                }
+                break;
+            case LANZAR_DADOS_Y_LIMPIAR:
+                limpiarPantalla();
+                if (entrada.equals("1")) {
+                    controlador.lanzar_dados();
+                } else {
+                    println("");
+                    println("Opcion no valida. Por favor elija una opcion valida.");
+                    println("1. LANZAR los dados");
+                }
                 break;
             case ESPERANDO_DECISION:
                 procesarDecision(entrada);
@@ -137,6 +156,7 @@ public class VistaConsola extends JFrame implements IVista{
                 controlador.plantarse();
                 break;
             default: //puso algo invalido
+                println("");
                 println("Opcion no valida. Por favor elija una opcion valida.");
                 habilitarBotonesPlantarseOApartar();
                 break;
@@ -153,6 +173,7 @@ public class VistaConsola extends JFrame implements IVista{
                 dispose();
                 break;
             default: //puse algo invalido
+                println("");
                 println("Opcion no valida. Por favor elija una opcion valida.");
                 mostrarMenuPrincipal();
                 break;
@@ -199,11 +220,11 @@ public class VistaConsola extends JFrame implements IVista{
             println("");
             println("Es tu turno!");
             println("1. LANZAR los dados");
-            estado = EstadoVistaConsola.LANZAR_DADOS;
+            estado = EstadoVistaConsola.LANZAR_DADOS_Y_LIMPIAR;
         }else{
-            txtEntradaJugador.setEditable(false);
             println("");
             println("Esperando que " + nombre + " juegue...");
+            txtEntradaJugador.setEditable(false);
         }
 
         try {
@@ -217,7 +238,7 @@ public class VistaConsola extends JFrame implements IVista{
     public void solo_chequear_botones(boolean esMiTurno){
         if(esMiTurno) {
             println("Es tu turno!");
-            println("1. LANZAR los dados");
+            println("Presione 1 para volver a lanzar!");
             estado = EstadoVistaConsola.LANZAR_DADOS;
         }
     }
@@ -257,9 +278,17 @@ public class VistaConsola extends JFrame implements IVista{
         controlador.procesar_eventos_pendientes();
     }
 
+    @Override
+    public void mensajeMaxApartado(String nombre, int punto) throws RemoteException {
+        println("");
+        println(nombre + " apartó la cantidad maxima de dados. Sus puntos en esta ronda son: " + punto);
+        controlador.procesar_eventos_pendientes();
+    }
+
     // Mostrar
     public void mostrarJugadores(ArrayList<Jugador> jugadores){
         limpiarPantalla();
+        txtEntradaJugador.setEditable(false);
         println("Jugadores en lobby:");
         for(Jugador j: jugadores){
             println("ID: " + j.getNroJugador() + " - Nombre: " + j.getNombreJugador() );
@@ -272,7 +301,7 @@ public class VistaConsola extends JFrame implements IVista{
         limpiarPantalla();
         println("MENÚ PRINCIPAL:");
         println("1. Jugar");
-        println("2. Reglas");
+        println("2. Reglas y Cómo Jugar");
         println("3. Ranking");
         println("4. Salir");
 
@@ -294,7 +323,7 @@ public class VistaConsola extends JFrame implements IVista{
     @Override
     public void mostrarGanador(String nombre, int puntos){
         txtEntradaJugador.setEditable(true);
-        println(" ¡JUGADOR GANADOR! " + nombre + " llegó/pasó los 10.000 puntos. \n La puntuacion obtenida fueron: " + puntos + " .Juego finalizado.");
+        println(" ¡JUGADOR GANADOR! " + nombre + " llegó/pasó el puntaje ganador(10.000). \n La puntuacion obtenida fueron: " + puntos + " .Juego finalizado.");
         println("");
         println("¿Qué desea hacer ahora?");
         println("1. Volver a jugar");
@@ -305,16 +334,16 @@ public class VistaConsola extends JFrame implements IVista{
     @Override
     public void mostrarTablaPuntaje() throws RemoteException {
         println("");
-        println("-----------------------");
+        println("-----------------------------------------------------------------------------------------------------------------");
         println(" --- TABLA DE PUNTAJES ---");
-        println("-----------------------");
+        println("-----------------------------------------------------------------------------------------------------------------");
         String encabezado = String.format("%-10s | %-20s | %-15s | %-15s%n", "NRO RONDA", "NOMBRE JUGADOR" , "PUNTAJE RONDA", "PUNTAJE TOTAL");
         println(encabezado);
         for(String[] fila : tablaPuntajes){
             String linea = String.format("        %-10s        |        %-20s        |        %-15s        |        %-15s%n        " ,fila[0] ,fila[1] ,fila[2] , fila[3]);
             println(linea);
         }
-        println("-----------------------");
+        println("-----------------------------------------------------------------------------------------------------------------");
         println("");
 
         controlador.procesar_eventos_pendientes();
@@ -324,7 +353,7 @@ public class VistaConsola extends JFrame implements IVista{
     @Override
     public void mostrarMisDados(ArrayList<Integer> valores){ //dsp de que se lanzen los dados: si soy yo:
         println("");
-        println("Tus dados son: " + valores);
+        println("Tus dados lanzados son: " + valores);
     }
 
     @Override
@@ -351,6 +380,7 @@ public class VistaConsola extends JFrame implements IVista{
                 controlador.terminarJuego();
                 break;
             default: //puse algo invalido
+                println("");
                 println("Opcion no valida. Por favor elija una opcion valida.");
                 mostrarMenuPrincipal();
                 break;
@@ -367,7 +397,16 @@ public class VistaConsola extends JFrame implements IVista{
         println(String.format("%-15s %-15s %-15s",
                 "NOMBRE", "PUNTAJE", "FECHA"));
         println("----------------------------------------------");
+
         Object[][] tabla = controlador.getTablaRanking();
+
+        //ORDENA LA TABLA DE MAYOR A MENOR ANTES DE MOSTRARLA:
+        Arrays.sort(tabla, (a, b) -> {
+            int puntajeA = Integer.parseInt(a[1].toString());
+            int puntajeB = Integer.parseInt(b[1].toString());
+            return Integer.compare(puntajeB, puntajeA);
+        });
+
         for (Object[] fila : tabla) {
             println(String.format("%-15s %-15s %-15s",
                     fila[0],  // nombre
@@ -387,6 +426,7 @@ public class VistaConsola extends JFrame implements IVista{
                 mostrarMenuPrincipal();
                 break;
             default: //puso algo invalido
+                println("");
                 println("Opcion no valida. Por favor elija una opcion valida.");
                 mostrarRanking();
                 break;
@@ -400,24 +440,29 @@ public class VistaConsola extends JFrame implements IVista{
         estadoAnterior = estado;
         estado = EstadoVistaConsola.REGLAS;
         limpiarPantalla();
-        println("REGLAS");
-        println("---------------------------");
+        println("REGLAS y COMO JUGAR - Juego 10mil - Dados");
+        println("------------------------------------------------------");
+        println("El juego de dados 10Mil se juega con 5 dados comunes de seis caras.");
+        println("Pueden participar entre 2 y 6 jugadores, que se turnan para lanzar los dados e intentar sumar puntos hasta alcanzar los 10.000.");
+        println("");
+        println("------------------------------------------------------");
         println("Objetivo del Juego");
-        println("---------------------------");
+        println("------------------------------------------------------");
         println("Para sumar puntos cada jugador/a debera obtener puntos a traves de diferentes combinaciones en su turno.");
-        println("Gana el jugador/a que llegue primero a 10mil puntos!");
-        println("-------------------------------");
+        println("");
+        println("----------------------------------------------------------");
         println("Cómo sumar puntos?:");
-        println("-------------------------------");
+        println("----------------------------------------------------------");
         println("Para sumar puntos deberas obtener en cada lanzamientos dados o combinaciones que te ayuden a sumar puntos.");
         println("Los dados con el numero 1 suman cada uno 100 puntos y los dados con el numero 5 suman 50 puntos cada uno.");
         println("Si obtenes tres dados iguales del mismo valor, se suma como una centena.");
         println("Por ejemplo, tres dados iguales con el numero cuatro suma 400 puntos y tres iguales con el numero dos suman 200 puntos.");
-        println("La unica expecion es el numero uno porque al obtenes tres dados iguales se suman 1000 puntos.");
+        println("La unica excepción es el numero uno porque al obtener tres dados iguales se suman 1000 puntos.");
         println("En caso de conseguir una escalera el jugador sumara 500 puntos.");
-        println("-------------------------------");
+        println("");
+        println("----------------------------------------------------------");
         println("TABLA DE PUNTOS:");
-        println("-------------------------------");
+        println("----------------------------------------------------------");
         println("- 50 puntos con cada numero 5");
         println("- 100 puntos con cada numero 1");
         println("- 200 puntos con tres numeros 2");
@@ -426,21 +471,26 @@ public class VistaConsola extends JFrame implements IVista{
         println("- 500 puntos con tres numeros 5");
         println("- 500 puntos con escalera (1,2,3,4,5 o 2,3,4,5,6 o 3,4,5,6,1)");
         println("- 1000 puntos con tres numeros 1");
-        println("-----------------------------");
+        println("");
+        println("--------------------------------------------------------");
         println("Dinamica del Juego");
-        println("-----------------------------");
-        println("Un jugador lanza los dados: el jugador decide en cada turno si se planta y conserva lo acumulado,");
-        println("o si arriesga un nuevo lanzamiento con los dados restantes. Si en un lanzamiento tiene puntos, estos se suman");
-        println("al total acumulado. Pero si en un lanzamiento no aparece ni un 1 ni un 5 o alguna combinacion, pierde el turno");
-        println("y los puntos obtenidos en esa ronda.");
-        println("La estrategia está en elegir entre asegurar lo ganado o seguir arriesgando.");
+        println("--------------------------------------------------------");
+        println("Un jugador lanza los dados. En cada turno puede decide si se planta y conserva los puntos acumulados");
+        println("o si arriesga un nuevo lanzamiento con los dados restantes.");
+        println("Si en un lanzamiento obtiene puntos, estos se suman al total acumulado en esa ronda.");
+        println("Si el jugador decide apartar uno o más dados que le otorguen puntaje, únicamente podrá volver a lanzar");
+        println("los dados que no hayan sido apartados.");
+        println("Si en un lanzamiento no aparece ningún 1, ningún 5 ni una combinación válida, pierde el turno");
+        println("y también los puntos obtenidos en esa ronda.");
+        println("La estrategia consiste en elegir entre asegurar lo ganado o seguir arriesgando.");
         println("En ocasiones, un buen lanzamiento puede disparar el puntaje (como obtener tres 1 y sumar 1000 puntos),");
         println("pero siempre con el riesgo de perderlo todo si no salen ni un 1 ni un 5 o combinaciones.");
-        println("---------------------------");
-        println("Fin del Juego");
-        println("---------------------------");
-        println("El juego termina cuando algun jugador llega a 10mil puntos");
-
+        println("");
+        println("--------------------------------------------------------");
+        println("¿Quién gana?");
+        println("--------------------------------------------------------");
+        println("Gana el jugador/a que llegue primero a 10mil puntos!");
+        println("");
         println("1.VOLVER");
     }
 
@@ -450,6 +500,7 @@ public class VistaConsola extends JFrame implements IVista{
                 mostrarMenuPrincipal();
                 break;
             default: //puso algo invalido
+                println("");
                 println("Opcion no valida. Por favor elija una opcion valida.");
                 mostrarReglas();
                 break;
@@ -458,7 +509,7 @@ public class VistaConsola extends JFrame implements IVista{
 
     //timer para comenzar a jugar
     public void iniciarTimer() { /// timer interno: no se ve por los jugadores.
-        timer = new Timer(5000, e -> { //2000 = 2 segundos
+        timer = new Timer(30000, e -> { //2000 = 2 segundos
             try {
                 println("Hay suficientes jugadores! El juego va a comenzar.");
                 controlador.comenzarJuego();

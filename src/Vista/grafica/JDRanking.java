@@ -1,7 +1,5 @@
 package Vista.grafica;
 
-import Controlador.Controlador;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -14,17 +12,15 @@ public class JDRanking extends JDialog {
     private DefaultTableModel modeloTabla;
     private JTable tabla_ranking;
     private JPanel panel;
-    private Controlador controlador;
     private JButton btnVolver;
 
 
-    public JDRanking(JFrame vistaPadre, Controlador controlador, VistaGrafica vistaGrafica){
+    public JDRanking(JFrame vistaPadre, VistaGrafica vistaGrafica){
         super(vistaPadre, false);
-        inicializar_comp(controlador, vistaGrafica);
+        inicializar_comp(vistaGrafica);
     }
 
-    private void inicializar_comp(Controlador controlador, VistaGrafica vista){
-        this.controlador = controlador;
+    private void inicializar_comp(VistaGrafica vista){
         setTitle("Juego10Mil - Ranking historico");
         setResizable(false);
         setBounds(100, 100, 500, 500);//posicion x (horizontal)=100, posicion y (vertical)=100, ancho=247 , largo=109
@@ -32,7 +28,6 @@ public class JDRanking extends JDialog {
         btnVolver = new JButton("Volver");
 
         modeloTabla = new DefaultTableModel();
-
 
         tabla_ranking = new JTable(){
             @Override
@@ -65,7 +60,7 @@ public class JDRanking extends JDialog {
         tabla_ranking.setModel(modeloTabla);
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla); //ordena la tabla
         tabla_ranking.setRowSorter(sorter); //asocia el ordenador a la tabla
-        sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(1, SortOrder.ASCENDING))); //manera en la que se ordena automaticamente(por puntaje, de menor a mayor)
+        sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(1, SortOrder.DESCENDING))); //manera en la que se ordena automaticamente(por puntaje, de mayor a menor)
     }
 
 }

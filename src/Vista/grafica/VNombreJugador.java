@@ -26,15 +26,17 @@ public class VNombreJugador extends JFrame {
         this.controlador = controlador;
         this.vista = vista;
 
-        setResizable(false); //puede no estar. Es para que no se pueda redimensionar
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
+        setTitle("Juego 10mil - Dados");
         setSize(400, 109);
         setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
+        setResizable(false); //puede no estar. Es para que no se pueda redimensionar
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
         panel = new JPanel();
-        panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(panel);
-        setTitle("Juego 10mil - Dados");
         panel.setLayout(new BorderLayout());
+
+        panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+
 
         lblNombreJ = new JLabel("Ingrese el nombre:");
         panel.add(lblNombreJ, BorderLayout.WEST);

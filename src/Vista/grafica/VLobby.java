@@ -18,24 +18,23 @@ public class VLobby extends JFrame {
     Timer timer;
 
 
-    public VLobby(VistaGrafica vista, Controlador controlador) {
-        inicializar_comp(vista, controlador);
+    public VLobby(Controlador controlador) {
+        inicializar_comp(controlador);
         iniciarTimer();
     }
 
-    private void inicializar_comp(VistaGrafica vista, Controlador controlador){
+    private void inicializar_comp(Controlador controlador){
         this.controlador = controlador;
 
-        setResizable(false); //puede no estar. Es para que no se pueda redimensionar
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
+        setTitle("Juego 10mil - Lobby");
         setSize(400, 300); //100, 100, 350, 300        setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
         setLocationRelativeTo(null);         // Centra la ventana en la pantalla (si todavía no está visible)
-        setTitle("Juego 10mil - Lobby");
+        setResizable(false); //puede no estar. Es para que no se pueda redimensionar
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //si cerras esta ventana, se termina la aplicacion
         panel = new JPanel();
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(panel);
         panel.setLayout(new BorderLayout());
-
 
         //estado
         panelEstado = new JPanel();
@@ -72,7 +71,7 @@ public class VLobby extends JFrame {
     }
 
     public void iniciarTimer() { /// timer interno: no se ve por los jugadores.
-        timer = new Timer(15000, e -> { //15000 =15 segundos
+        timer = new Timer(30000, e -> { //15000 =15 segundos
             try {
                 controlador.comenzarJuego();
                 setVisible(false);

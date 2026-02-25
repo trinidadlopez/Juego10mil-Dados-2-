@@ -48,4 +48,5 @@ public interface IVista {
 
     void limpiarTablaPuntaje();
 
+    void mensajeMaxApartado(String nombre, int punto) throws RemoteException;
 }
