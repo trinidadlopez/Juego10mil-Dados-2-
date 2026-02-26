@@ -144,6 +144,9 @@ public class VistaConsola extends JFrame implements IVista{
             case ULTIMA_DECISION:
                 procesarUltimaDecision(entrada);
                 break;
+            case ESPERANDO_TECLA:
+                controlador.terminarJuego();
+                setVisible(false);
         }
     }
 
@@ -283,6 +286,14 @@ public class VistaConsola extends JFrame implements IVista{
         println("");
         println(nombre + " apartó la cantidad maxima de dados. Sus puntos en esta ronda son: " + punto);
         controlador.procesar_eventos_pendientes();
+    }
+
+    @Override
+    public void msjJugadorFuera() throws RemoteException {
+        limpiarPantalla();
+        println("Usted no pudo ser agregado porque la partida ya está en curso! Intentelo más tarde.");
+        estado = EstadoVistaConsola.ESPERANDO_TECLA;
+        println("Presione cualquier tecla y luego ENTER para cerrar la ventana!");
     }
 
     // Mostrar
@@ -518,6 +529,9 @@ public class VistaConsola extends JFrame implements IVista{
             }
         });
         timer.setRepeats(false);
+    }
+
+    public void mostrarLobby(){
     }
 
 }

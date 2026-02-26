@@ -45,7 +45,6 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
                 jugadorActual = jugador;
             }
         }
-        //juego en curso, no se puede agregar jugador
     }
 
     @Override

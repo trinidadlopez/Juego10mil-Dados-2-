@@ -200,6 +200,10 @@ public class VJuego extends JFrame {
         mensajes.maxApartado(nombre, punto);
     }
 
+    public void jugador_fuera(){
+        mensajes.jugadorFuera();
+    }
+
     // actualizar
     public void actualizarListaDados(ArrayList<Integer> valores, JPanel panel, int ancho, int alto, ArrayList<JLabel> lista){
         panel.removeAll();

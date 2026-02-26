@@ -14,6 +14,8 @@ public interface IVista {
 
     void lobbyListo();
 
+    void mostrarLobby();
+
     void actualizarLobby(ArrayList<Jugador> j) throws RemoteException;
 
     void iniciar_juego(String nombre, boolean esMiTurno) throws RemoteException;
@@ -49,4 +51,7 @@ public interface IVista {
     void limpiarTablaPuntaje();
 
     void mensajeMaxApartado(String nombre, int punto) throws RemoteException;
+
+    void msjJugadorFuera() throws RemoteException;
+
 }

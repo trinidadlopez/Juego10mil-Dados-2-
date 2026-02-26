@@ -4,6 +4,8 @@ import Controlador.Controlador;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 
 public class JDMensajes extends JDialog{
@@ -11,6 +13,7 @@ public class JDMensajes extends JDialog{
     private JLabel texto;
     private Controlador controlador;
     private Timer timer;
+    private JButton btnOK;
 
     public JDMensajes(JFrame vistaPadre, Controlador controlador){
         super(vistaPadre, false);
@@ -31,6 +34,21 @@ public class JDMensajes extends JDialog{
         pack(); //la ventana se ajusta al tamño del textos
         setLocationRelativeTo(null); // Centra la ventana en la pantalla (si todavía no está visible)
         setVisible(false);
+        btnOK= new JButton(" Ok ");
+        panelPrincipal.add(btnOK, BorderLayout.SOUTH);
+        btnOK.setVisible(false);
+
+        btnOK.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    controlador.terminarJuego();
+                    setVisible(false);
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
     }
 
@@ -53,6 +71,17 @@ public class JDMensajes extends JDialog{
         texto.setVisible(true);
         panelPrincipal.setVisible(true);
         timer.start();
+        btnOK.setVisible(false);
+    }
+
+    public void jugadorFuera(){
+        setPreferredSize(new Dimension(600, 150));
+        texto.setText("Usted no pudo ser agregado porque la partida ya está en curso! Intentelo más tarde.");
+        pack();
+        setVisible(true);
+        texto.setVisible(true);
+        panelPrincipal.setVisible(true);
+        btnOK.setVisible(true);
     }
 
     public void maxApartado(String nombre, int puntos){
@@ -62,6 +91,7 @@ public class JDMensajes extends JDialog{
         texto.setVisible(true);
         panelPrincipal.setVisible(true);
         timer.start();
+        btnOK.setVisible(false);
     }
 
     public void mostrarPlantado(String nombre, int puntos){
@@ -71,6 +101,7 @@ public class JDMensajes extends JDialog{
         texto.setVisible(true);
         panelPrincipal.setVisible(true);
         timer.start();
+        btnOK.setVisible(false);
     }
 
     public void escalera(String nombre){
@@ -80,6 +111,7 @@ public class JDMensajes extends JDialog{
         texto.setVisible(true);
         panelPrincipal.setVisible(true);
         timer.start();
+        btnOK.setVisible(false);
     }
 
     public void dadosSinPuntos(String nombre){
@@ -89,6 +121,7 @@ public class JDMensajes extends JDialog{
         texto.setVisible(true);
         panelPrincipal.setVisible(true);
         timer.start();
+        btnOK.setVisible(false);
     }
 
 

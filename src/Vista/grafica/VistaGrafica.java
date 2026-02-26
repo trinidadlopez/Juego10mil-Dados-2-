@@ -106,6 +106,10 @@ public class VistaGrafica implements IVista {
         ventanaJuego.msjPlantado(nombre, puntos);
     }
 
+    public void msjJugadorFuera(){
+        ventanaJuego.jugador_fuera();
+    }
+
     public void mensajeEscalera(String nombre){
         ventanaJuego.deshabilitarBotonesTodos();
         ventanaJuego.msjEscalera(nombre);

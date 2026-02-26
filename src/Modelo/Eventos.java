@@ -12,5 +12,5 @@ public enum Eventos {
     ESCALERA_OBTENIDA,
     PLANTADO,
     JUGADOR_GANADOR,
-    MAX_APARTADOS
+    MAX_APARTADOS,
 }

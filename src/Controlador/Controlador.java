@@ -31,15 +31,16 @@ public class Controlador implements IControladorRemoto {
         jugador.setNroJugador(juego.siguienteNroJ());
         nroJugador=jugador.getNroJugador();
         if(juego.getEstadoJugada()!=EstadoJugada.ESPERANDO_JUGADORES){
-            terminarJuego();
+            vista.msjJugadorFuera();
+            juego.removerObservador(this);
         }
         else{
             if(dadosApartados==null){
                 dadosApartados = new ArrayList<>();
             }
+            vista.mostrarLobby();
             juego.iniciar_jugador(jugador);
         }
-
     }
 
     public void comenzarJuego() throws RemoteException{
