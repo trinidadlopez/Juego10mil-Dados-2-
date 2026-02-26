@@ -16,7 +16,7 @@ public class JDMensajes extends JDialog{
     private JButton btnOK;
 
     public JDMensajes(JFrame vistaPadre, Controlador controlador){
-        super(vistaPadre, false);
+        super(vistaPadre, false); //llamo al constructor de JDialog con los parametros: (ventana que lo contiene, modal=true/false)
         inicializar(controlador);
     }
 

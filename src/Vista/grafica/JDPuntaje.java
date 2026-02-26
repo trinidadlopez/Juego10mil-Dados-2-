@@ -14,7 +14,7 @@ public class JDPuntaje extends JDialog{
     Controlador controlador;
 
     public JDPuntaje(JFrame vistaPadre, Controlador controlador){
-        super(vistaPadre, false);
+        super(vistaPadre, false); //llamo al constructor de JDialog con los parametros: (ventana que lo contiene, modal=true/false)
         inicializar_comp(controlador);
         
     }

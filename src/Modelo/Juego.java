@@ -29,7 +29,7 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         //admRanking.vaciarRanking();
     }
 
-    // inicializar y jugadores
+    // CONFIG INICIAL=================
     @Override
     public int siguienteNroJ() { //jugador.id
         siguiente_nroJ = siguiente_nroJ + 1;
@@ -53,54 +53,13 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         notificarObservadores(COMENZAR_JUEGO);
     }
 
-    // en juego
+    // CONFIG EN JUEGO=================
     public void lanzar() throws RemoteException {
         ArrayList<Dado> resultados = cubilete.tirarse();
         jugadorActual.setDadosParciales(resultados);
         notificarObservadores(DADOS_LANZADOS);
-        chequear_estado_tirada(); //cheqeuo en que estado estan mis dados
-        analizar_estado_tirada(); //me fijo que hago con ese estado
-    }
-
-    private void chequear_estado_tirada() {
-        estadoJugada = reglas.decime_el_estado(jugadorActual.getDadosParciales());
-    }
-
-    private void analizar_estado_tirada() throws RemoteException {
-        switch (estadoJugada) {
-            case TIENE_ESCALERA:
-                jugadorActual.setPuntajeParcial(500);
-                jugadorActual.setPuntajeTotal();
-                notificarObservadores(Eventos.ESCALERA_OBTENIDA);
-                notificarObservadores(PUNTAJE_ACTUALIZADO);
-                actualizar_turno_jugador();
-                break;
-            case TIENE_DADOS_CON_PUNTOS:
-                notificarObservadores(Eventos.DADOS_CON_PUNTOS); //habilito los botones de apartar o plantarse
-                break;
-            case TIENE_DADOS_SIN_PUNTOS:
-                notificarObservadores(DADOS_SIN_PUNTOS); //msj perdio los puntos y actualizo turno
-                jugadorActual.setPuntajeParcial(0);
-                notificarObservadores(PUNTAJE_ACTUALIZADO);
-                actualizar_turno_jugador();
-                break;
-        }
-    }
-
-    public void jugador_plantado() throws RemoteException {
-        estadoJugada = EstadoJugada.SE_PLANTO;
-        actualizar_parciales();
-        jugadorActual.setPuntajeParcial(reglas.calcularPuntaje(jugadorActual.getDadosParciales()));
-        jugadorActual.setPuntajeTotal();
-        notificarObservadores(PLANTADO);
-        notificarObservadores(PUNTAJE_ACTUALIZADO);
-        actualizar_turno_jugador();
-    }
-
-    private void actualizar_parciales() {
-        for (Dado d : jugadorActual.getDadosApartados()) {
-            jugadorActual.getDadosParciales().add(d);
-        }
+        chequear_estado_tirada(); //cheqeuo en que estado estan mis dados. METODO PRIV-----------------
+        analizar_estado_tirada(); //me fijo que hago con ese estado. METODO PRIV-----------------
     }
 
     public void apartar_dados() throws RemoteException {
@@ -126,6 +85,17 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         notificarObservadores(DADOS_APARTADOS);
     }
 
+    public void jugador_plantado() throws RemoteException {
+        estadoJugada = EstadoJugada.SE_PLANTO;
+        actualizar_parciales(); //METODO PRIV-----------------
+        jugadorActual.setPuntajeParcial(reglas.calcularPuntaje(jugadorActual.getDadosParciales()));
+        jugadorActual.setPuntajeTotal();
+        notificarObservadores(PLANTADO);
+        notificarObservadores(PUNTAJE_ACTUALIZADO);
+        actualizar_turno_jugador();
+    }
+
+    // CONTROLES=================
     public void actualizar_turno_jugador() throws RemoteException {
         cubilete.reestablecer_cubilete();
         jugadorActual.getDadosParciales().clear();
@@ -146,18 +116,39 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         notificarObservadores(ACTUALIZACION_TURNO);
     }
 
-    // volver a jugar
-    public void resetearJuego() throws RemoteException{
-        jugadores.clear();
-        jugadorActual = null;
-        siguiente_nroJ=-1;
-        nroRonda=1;
-        estadoJugada=null;
-        cubilete.reestablecer_cubilete();
-        estadoJugada=EstadoJugada.ESPERANDO_JUGADORES;
+    // METODOS PRIV=================
+    private void chequear_estado_tirada() {
+        estadoJugada = reglas.decime_el_estado(jugadorActual.getDadosParciales());
     }
 
-    // GETs
+    private void analizar_estado_tirada() throws RemoteException {
+        switch (estadoJugada) {
+            case TIENE_ESCALERA:
+                jugadorActual.setPuntajeParcial(500);
+                jugadorActual.setPuntajeTotal();
+                notificarObservadores(Eventos.ESCALERA_OBTENIDA);
+                notificarObservadores(PUNTAJE_ACTUALIZADO);
+                actualizar_turno_jugador();
+                break;
+            case TIENE_DADOS_CON_PUNTOS:
+                notificarObservadores(Eventos.DADOS_CON_PUNTOS); //habilito los botones de apartar o plantarse
+                break;
+            case TIENE_DADOS_SIN_PUNTOS:
+                notificarObservadores(DADOS_SIN_PUNTOS); //msj perdio los puntos y actualizo turno
+                jugadorActual.setPuntajeParcial(0);
+                notificarObservadores(PUNTAJE_ACTUALIZADO);
+                actualizar_turno_jugador();
+                break;
+        }
+    }
+
+    private void actualizar_parciales() {
+        for (Dado d : jugadorActual.getDadosApartados()) {
+            jugadorActual.getDadosParciales().add(d);
+        }
+    }
+
+    // GETTERS=================
     public int getNroRonda() {
         return nroRonda;
     }
@@ -188,7 +179,17 @@ public class Juego extends ObservableRemoto implements Serializable, IJuego {
         return estadoJugada;
     }
 
-    // finalizar
+    // resetear y finalizar
+    public void resetearJuego() throws RemoteException{
+        jugadores.clear();
+        jugadorActual = null;
+        siguiente_nroJ=-1;
+        nroRonda=1;
+        estadoJugada=null;
+        cubilete.reestablecer_cubilete();
+        estadoJugada=EstadoJugada.ESPERANDO_JUGADORES;
+    }
+
     private void finalizar_partida(Jugador jugador) throws RemoteException {
         ranking.add(jugador);
         admRanking.guardarRanking(ranking);

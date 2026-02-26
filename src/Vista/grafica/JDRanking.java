@@ -16,7 +16,7 @@ public class JDRanking extends JDialog {
 
 
     public JDRanking(JFrame vistaPadre, VistaGrafica vistaGrafica){
-        super(vistaPadre, false);
+        super(vistaPadre, false); //llamo al constructor de JDialog con los parametros: (ventana que lo contiene, modal=true/false)
         inicializar_comp(vistaGrafica);
     }
 

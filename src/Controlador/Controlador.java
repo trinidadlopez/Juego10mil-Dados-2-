@@ -12,12 +12,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class Controlador implements IControladorRemoto {
-    IJuego juego;
-    IVista vista;
+    private IJuego juego;
+    private IVista vista;
     int nroJugador;
-    ArrayList<Dado> dadosApartados;
+    private ArrayList<Dado> dadosApartados;
     private Jugador jugador;
-    EstadoInterfaz estadoIz;
+    private EstadoInterfaz estadoIz;
     private ArrayDeque<Eventos> cola;
 
     public Controlador() {
@@ -26,6 +26,7 @@ public class Controlador implements IControladorRemoto {
         cola = new ArrayDeque<>();
     }
 
+    // ACCIONES QUE VIENEN DE LA VISTA =================
     public void iniciarJugador(String nombre) throws RemoteException{
         jugador = new Jugador(nombre, dadosApartados);
         jugador.setNroJugador(juego.siguienteNroJ());
@@ -47,40 +48,19 @@ public class Controlador implements IControladorRemoto {
         juego.comenzarJuego();
     }
 
-    public void procesar_eventos_pendientes() throws RemoteException {
-        estadoIz = EstadoInterfaz.NORMAL;
-        while(!cola.isEmpty() && estadoIz == EstadoInterfaz.NORMAL){
-            Eventos evento = cola.poll();
-            procesar_evento(evento);
-        }
+    public void plantarse() throws RemoteException {
+        juego.jugador_plantado();
     }
 
-    private void procesar_evento(Eventos evento) throws RemoteException {
-        switch (evento){
-            case ACTUALIZACION_TURNO:
-                estadoIz = EstadoInterfaz.ACTUALIZANDO_EL_TURNO;
-                boolean es_mi_turno = juego.getJugadorActual().getNroJugador()==nroJugador;
-                vista.chequear_botones_y_turno(juego.getJugadorActual().getNombreJugador(), es_mi_turno);
-                break;
-            case PUNTAJE_ACTUALIZADO:
-                estadoIz=EstadoInterfaz.MOSTRANDO_PUNTAJE;
-                vista.mostrarTablaPuntaje();
-                break;
-            case DADOS_LANZADOS: //chequear si funciona asi o si no lo bloqueo
-                ArrayList<Integer> valores = new ArrayList<>();
-                for (Dado d : juego.getJugadorActual().getDadosParciales()){
-                    valores.add(d.getValorCaraSuperior());
-                }
-                int idJugador = juego.getJugadorActual().getNroJugador();
-                if (idJugador == nroJugador) {
-                    vista.mostrarMisDados(valores);
-                } else {
-                    vista.mostrarDadosOtros(valores);
-                }
-                break;
-        }
+    public void lanzar_dados() throws RemoteException { //primer lanzamiento
+        juego.lanzar();
     }
 
+    public void apartarDados() throws RemoteException {
+        juego.apartar_dados();
+    }
+
+    // OBSERVER =================
     @Override
     public void actualizar(IObservableRemoto iObservableRemoto, Object o) throws RemoteException {
         try{
@@ -176,30 +156,7 @@ public class Controlador implements IControladorRemoto {
         }
     }
 
-    //SETs
-    public void setVista(IVista vista){
-        this.vista = vista;
-    }
-
-    @Override
-    public <T extends IObservableRemoto> void setModeloRemoto(T t) throws RemoteException {
-        this.juego= (IJuego) t;
-    }
-
-    // juego.algo
-    public void plantarse() throws RemoteException {
-        juego.jugador_plantado();
-    }
-
-    public void lanzar_dados() throws RemoteException { //primer lanzamiento
-        juego.lanzar();
-    }
-
-    public void apartarDados() throws RemoteException {
-        juego.apartar_dados();
-    }
-
-    //manejar
+    // MANEJO DE EVENTOS =================
     public void manejarEscalera() throws RemoteException {
         estadoIz = EstadoInterfaz.MOSTRANDO_ESCALERA;
         vista.mensajeEscalera(juego.getJugadorActual().getNombreJugador());
@@ -210,21 +167,44 @@ public class Controlador implements IControladorRemoto {
         vista.mensajeDadosSinPuntos(juego.getJugadorActual().getNombreJugador());
     }
 
-    //GET
+    // COLA DE EVENTOS PENDIENTES=================
+    public void procesar_eventos_pendientes() throws RemoteException {
+        estadoIz = EstadoInterfaz.NORMAL;
+        while(!cola.isEmpty() && estadoIz == EstadoInterfaz.NORMAL){
+            Eventos evento = cola.poll();
+            procesar_evento(evento);
+        }
+    }
+
+    private void procesar_evento(Eventos evento) throws RemoteException {
+        switch (evento){
+            case ACTUALIZACION_TURNO:
+                estadoIz = EstadoInterfaz.ACTUALIZANDO_EL_TURNO;
+                boolean es_mi_turno = juego.getJugadorActual().getNroJugador()==nroJugador;
+                vista.chequear_botones_y_turno(juego.getJugadorActual().getNombreJugador(), es_mi_turno);
+                break;
+            case PUNTAJE_ACTUALIZADO:
+                estadoIz=EstadoInterfaz.MOSTRANDO_PUNTAJE;
+                vista.mostrarTablaPuntaje();
+                break;
+            case DADOS_LANZADOS: //chequear si funciona asi o si no lo bloqueo
+                ArrayList<Integer> valores = new ArrayList<>();
+                for (Dado d : juego.getJugadorActual().getDadosParciales()){
+                    valores.add(d.getValorCaraSuperior());
+                }
+                int idJugador = juego.getJugadorActual().getNroJugador();
+                if (idJugador == nroJugador) {
+                    vista.mostrarMisDados(valores);
+                } else {
+                    vista.mostrarDadosOtros(valores);
+                }
+                break;
+        }
+    }
+
+    //METODOS AUX. =================
     public Object[][] getTablaRanking() throws RemoteException {
         return juego.getTablaRanking();
-    }
-
-    // finalizar juego
-    public void terminarJuego() throws RemoteException{
-        juego.removerObservador(this);
-        System.exit(0);
-    }
-
-    //otros
-    public void volverAJugar() throws RemoteException{
-        vista.limpiarTablaPuntaje();
-        vista.mostrarMenuPrincipal();
     }
 
     public ArrayList<Jugador> jugadoresLobby() throws RemoteException {
@@ -238,5 +218,26 @@ public class Controlador implements IControladorRemoto {
             }
         }
         return "";
+    }
+
+    //CONFIG. =================
+    public void setVista(IVista vista){
+        this.vista = vista;
+    }
+
+    @Override
+    public <T extends IObservableRemoto> void setModeloRemoto(T t) throws RemoteException {
+        this.juego= (IJuego) t;
+    }
+
+    //RESETEO y FINALIZACION =================
+    public void volverAJugar() throws RemoteException{
+        vista.limpiarTablaPuntaje();
+        vista.mostrarMenuPrincipal();
+    }
+
+    public void terminarJuego() throws RemoteException{
+        juego.removerObservador(this);
+        System.exit(0);
     }
 }
